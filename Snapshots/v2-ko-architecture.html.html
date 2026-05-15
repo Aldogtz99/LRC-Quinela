@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LRC Quiniela — World Cup 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@600&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --purple:#5A1BFF;--purple2:#7040FF;
+  --red:#E31E24;--red2:#FF3A3F;
+  --lime:#B6FF00;--lime2:#CCFF33;
+  --dark:#111111;--dark2:#1A1A1A;--dark3:#222222;--dark4:#2E2E2E;
+  --light:#F7F7F7;--muted:#A0A0A0;
+  --border:#333333;--border2:#444444;
+  --font-d:'Bebas Neue',sans-serif;
+  --font-s:'Oswald',sans-serif;
+  --font-b:'Inter',sans-serif;
+}
+body{background:var(--dark);color:var(--light);font-family:var(--font-b);min-height:100vh}
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.screen{display:none}.screen.active{display:block}
+
+/* ── BUTTONS ── */
+.btn{font-family:var(--font-s);font-size:.9rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.55rem 1.1rem;border-radius:2px;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;justify-content:space-between;gap:.5rem}
+.btn-primary{background:var(--purple);color:var(--light);border:2px solid var(--purple)}.btn-primary:hover{background:var(--purple2);border-color:var(--purple2)}
+.btn-primary::after{content:'›';font-size:1.2rem;line-height:1}
+.btn-secondary{background:transparent;color:var(--dark);border:2px solid var(--dark)}.btn-secondary:hover{background:rgba(0,0,0,.08)}
+.btn-lime{background:var(--lime);color:var(--dark);border:2px solid var(--lime)}.btn-lime:hover{background:var(--lime2)}
+.btn-lime::after{content:'›';font-size:1.2rem;line-height:1}
+.btn-red{background:var(--red);color:var(--light);border:2px solid var(--red)}.btn-red:hover{background:var(--red2)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border2)}.btn-ghost:hover{color:var(--light);border-color:var(--light)}
+.btn-sm{padding:.35rem .75rem;font-size:.78rem}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-approve{background:var(--lime);color:var(--dark);border:none;font-family:var(--font-s);font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .75rem;border-radius:2px;cursor:pointer}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red);font-family:var(--font-s);font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .75rem;border-radius:2px;cursor:pointer}
+
+/* ── FORMS ── */
+input[type=text],input[type=password],input[type=number]{background:var(--dark3);border:1px solid var(--border2);border-radius:2px;color:var(--light);font-family:var(--font-b);font-size:.875rem;padding:.5rem .75rem;outline:none;width:100%}
+input:focus{border-color:var(--lime)}
+input[type=checkbox]{accent-color:var(--lime);cursor:pointer}
+.field{margin-bottom:.9rem}
+.field label{display:block;font-family:var(--font-s);font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
+
+/* ── PANELS ── */
+.panel{background:var(--dark2);border:1px solid var(--border);border-radius:2px;padding:1.25rem;margin-bottom:.75rem}
+.panel-title{font-family:var(--font-d);font-size:1.1rem;letter-spacing:.12em;color:var(--lime);margin-bottom:.9rem;text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+.panel-title::before{content:'';display:block;width:3px;height:1em;background:var(--lime);flex-shrink:0}
+
+/* ── TABS ── */
+.tabs{display:flex;background:var(--dark2);border-bottom:2px solid var(--border)}
+.tab{background:none;border:none;border-bottom:3px solid transparent;color:var(--muted);font-family:var(--font-s);font-size:.85rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.75rem 1.1rem;cursor:pointer;transition:all .15s;margin-bottom:-2px}
+.tab.active{color:var(--lime);border-bottom-color:var(--lime)}
+.tab:hover:not(.active){color:var(--light)}
+
+/* ── HEADER ── */
+.header{background:var(--purple);position:relative;overflow:hidden}
+.header-halftone{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.07) 1px,transparent 1px);background-size:7px 7px;pointer-events:none}
+.header-slash{position:absolute;top:0;right:0;width:120px;height:100%;background:linear-gradient(135deg,var(--red) 0%,var(--red) 50%,var(--lime) 50%,var(--lime) 100%);clip-path:polygon(40% 0,100% 0,100% 100%,60% 100%);pointer-events:none}
+.header-body{position:relative;z-index:1;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.lrc-badge{background:var(--light);color:var(--dark);font-family:var(--font-d);font-size:1.1rem;letter-spacing:.12em;padding:.25rem .7rem;border-radius:2px;line-height:1}
+.header-title{font-family:var(--font-d);font-size:2.2rem;letter-spacing:.15em;color:var(--light);line-height:1}
+.header-sub{font-family:var(--font-s);font-size:.75rem;font-weight:600;letter-spacing:.12em;color:rgba(255,255,255,.6);text-transform:uppercase;margin-top:.1rem}
+.flag-pill{font-family:var(--font-s);font-size:.72rem;font-weight:600;letter-spacing:.08em;padding:.22rem .65rem;border-radius:2px;text-transform:uppercase}
+
+/* ── TICKER ── */
+.ticker{background:var(--dark);border-top:2px solid var(--lime);border-bottom:2px solid var(--lime);padding:.4rem 1.25rem;display:flex;align-items:center;gap:1rem;overflow:hidden;flex-wrap:wrap}
+.tick-item{font-family:var(--font-s);font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--light);white-space:nowrap;display:flex;align-items:center;gap:.4rem}
+.tick-dot{width:5px;height:5px;border-radius:50%;background:var(--lime);flex-shrink:0}
+.tick-sep{color:var(--border2);font-size:.6rem}
+
+/* ── LEADERBOARD ── */
+.lb-row{display:grid;grid-template-columns:1.8rem auto 1fr auto;align-items:center;gap:.8rem;padding:.75rem 1rem;background:var(--dark3);border:1px solid var(--border);border-left:3px solid transparent;margin-bottom:.35rem;border-radius:2px}
+.lb-row.gold{border-left-color:var(--lime);background:#1a1f00}
+.lb-row.silver{border-left-color:var(--muted)}
+.lb-row.bronze{border-left-color:#c08040}
+.lb-rank{font-family:var(--font-d);font-size:1.2rem;color:var(--muted);text-align:center}
+.lb-row.gold .lb-rank{color:var(--lime)}
+.lb-row.silver .lb-rank{color:var(--muted)}
+.lb-row.bronze .lb-rank{color:#c08040}
+.lb-name{font-family:var(--font-s);font-size:.95rem;font-weight:600;color:var(--light)}
+.lb-meta{font-size:.72rem;color:var(--muted);margin-top:.1rem}
+.lb-pts{font-family:var(--font-d);font-size:1.6rem;color:var(--lime)}
+.lb-bar-wrap{height:3px;background:var(--border);margin-top:.3rem;overflow:hidden;border-radius:2px}
+.lb-bar{height:100%;background:var(--purple);border-radius:2px;transition:width .4s ease-out}
+
+/* ── STAT BOX ── */
+.stat-row{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.stat-box{background:var(--dark3);border:1px solid var(--border2);border-radius:2px;padding:.6rem .9rem;display:flex;flex-direction:column;align-items:center;min-width:76px}
+.stat-val{font-family:var(--font-d);font-size:1.5rem;letter-spacing:.06em;line-height:1}
+.stat-lbl{font-family:var(--font-s);font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.1rem}
+
+/* ── MATCH ROW ── */
+.match-row{background:var(--dark3);border:1px solid var(--border);border-radius:2px;padding:.6rem .9rem;margin-bottom:.35rem;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:.75rem}
+.match-teams{font-family:var(--font-s);font-size:.9rem;font-weight:600;color:var(--light)}
+.match-sub{font-size:.7rem;color:var(--muted);margin-top:.1rem}
+.r-btns{display:flex;gap:.25rem}
+.r-btn{background:var(--dark4);border:1px solid var(--border2);color:var(--muted);font-family:var(--font-d);font-size:.95rem;padding:.28rem .6rem;border-radius:2px;cursor:pointer;transition:all .12s;letter-spacing:.06em}
+.r-btn.sel{background:var(--purple);color:var(--light);border-color:var(--purple)}
+.r-btn:disabled{opacity:.3;cursor:not-allowed}
+.score-wrap{display:flex;align-items:center;gap:.25rem}
+.score-wrap input{width:32px;text-align:center;padding:.28rem .2rem;font-size:.85rem}
+.score-wrap span{color:var(--muted);font-size:.85rem}
+
+/* ── PHASE HEADER ── */
+.phase-hdr{background:var(--purple);padding:.5rem 1rem;margin:.9rem 0 .6rem;display:flex;align-items:center;justify-content:space-between;border-left:3px solid var(--lime);border-radius:2px}
+.phase-hdr span{font-family:var(--font-d);font-size:.95rem;letter-spacing:.12em;color:var(--light)}
+
+/* ── BADGES ── */
+.badge{display:inline-block;font-family:var(--font-s);font-size:.68rem;font-weight:600;letter-spacing:.08em;padding:.15rem .5rem;border-radius:2px;text-transform:uppercase}
+.badge-open{background:rgba(182,255,0,.15);color:var(--lime);border:1px solid var(--lime)}
+.badge-closed{background:rgba(227,30,36,.12);color:var(--red);border:1px solid var(--red)}
+.badge-pending{background:rgba(90,27,255,.2);color:#a080ff;border:1px solid #7050dd}
+.badge-count{background:var(--red);color:#fff;border-radius:50%;width:17px;height:17px;display:inline-flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;margin-left:.4rem;vertical-align:middle;font-family:var(--font-b)}
+
+/* ── INFO BOX ── */
+.info-box{background:var(--dark3);border-left:3px solid var(--purple);padding:.65rem 1rem;font-size:.82rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;font-family:var(--font-b);border-radius:2px}
+
+/* ── WIN CARD ── */
+.win-card{background:var(--dark3);border:1px solid var(--border);padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem;border-radius:2px}
+
+/* ── PLAYER ROW ── */
+.p-row{background:var(--dark3);border:1px solid var(--border);border-radius:2px;padding:.7rem 1rem;margin-bottom:.35rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+
+/* ── PLAYER SELECT BTN ── */
+.ps-btn{background:var(--dark3);border:1px solid var(--border);border-radius:2px;padding:.85rem 1rem;width:100%;display:flex;align-items:center;gap:.85rem;cursor:pointer;transition:all .15s;margin-bottom:.4rem;text-align:left}
+.ps-btn:hover{border-color:var(--lime);background:var(--dark4)}
+.ps-name{font-family:var(--font-s);font-size:.95rem;font-weight:600;color:var(--light)}
+.ps-meta{font-size:.72rem;color:var(--muted);margin-top:.1rem}
+
+/* ── AVATAR ── */
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-s);font-weight:600;flex-shrink:0}
+
+/* ── PHOTO UPLOAD ── */
+.photo-upload{position:relative;cursor:pointer;display:inline-block}
+.photo-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.photo-ring{width:48px;height:48px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color .15s}
+.photo-upload:hover .photo-ring{border-color:var(--lime)}
+
+/* ── PRIZE CARDS ── */
+.prize-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.75rem 0}
+.p-card{border-radius:2px;padding:1rem;text-align:center;border:1px solid}
+.p-card.g1{background:#1a1f00;border-color:var(--lime)}
+.p-card.g2{background:#1a1a1a;border-color:var(--muted)}
+.p-card.g3{background:#1a1200;border-color:#c08040}
+.p-place{font-family:var(--font-d);font-size:1.8rem;letter-spacing:.12em}
+.p-card.g1 .p-place{color:var(--lime)}
+.p-card.g2 .p-place{color:var(--muted)}
+.p-card.g3 .p-place{color:#c08040}
+.p-amt{font-family:var(--font-d);font-size:1.1rem;color:var(--light);margin:.2rem 0;letter-spacing:.08em}
+.p-pct{font-size:.7rem;color:var(--muted);font-family:var(--font-b)}
+
+/* ── MISC ── */
+.sec-label{font-family:var(--font-s);font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+.divider{border:none;border-top:1px solid var(--border);margin:1rem 0}
+.empty{text-align:center;padding:2rem 1rem;color:var(--muted);font-family:var(--font-s);font-size:.9rem;letter-spacing:.06em}
+.content{padding:1.25rem;max-width:860px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:1.25rem;right:1.25rem;background:var(--dark2);border:1px solid var(--lime);border-radius:2px;padding:.6rem 1rem;font-family:var(--font-s);font-size:.85rem;font-weight:600;letter-spacing:.06em;z-index:999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;color:var(--lime)}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* ── LANDING ── */
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr)}
+.stats-block{padding:.85rem 1rem;display:flex;align-items:center;gap:.65rem}
+.stats-block-num{font-family:var(--font-d);font-size:1.8rem;letter-spacing:.05em;color:var(--light);line-height:1}
+.stats-block-lbl{font-family:var(--font-s);font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.stats-block-icon{font-size:1.4rem;opacity:.7;color:var(--light)}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+.how-step{padding:1.1rem 1rem;border-right:1px solid var(--border)}
+.how-step:last-child{border-right:none}
+.how-num{font-family:var(--font-d);font-size:2.5rem;letter-spacing:.08em;line-height:1;margin-bottom:.35rem}
+.how-title{font-family:var(--font-s);font-size:.9rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--light);margin-bottom:.35rem}
+.how-body{font-size:.8rem;color:var(--muted);line-height:1.55;font-family:var(--font-b)}
+.footer-tag{background:var(--dark2);border-top:1px solid var(--border);padding:.65rem 1.25rem;display:flex;align-items:center;justify-content:space-between}
+.footer-tag-text{font-family:var(--font-s);font-size:.75rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.footer-highlight{color:var(--lime)}
+</style>
+</head>
+<body>
+
+<h2 class="sr-only">LRC Quiniela — La Razita Club World Cup 2026 Prediction App</h2>
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════
+     HEADER (always visible)
+═══════════════════════════════════════════════ -->
+<div class="header">
+  <div class="header-halftone"></div>
+  <div class="header-slash"></div>
+  <div class="header-body">
+    <div style="display:flex;align-items:center;gap:.85rem">
+      <div class="lrc-badge">LRC</div>
+      <div>
+        <div class="header-title">QUINIELA</div>
+        <div class="header-sub">La Razita Club · World Cup 2026</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem">
+      <div style="display:flex;gap:.35rem">
+        <span class="flag-pill" style="background:var(--light);color:var(--red)">USA</span>
+        <span class="flag-pill" style="background:var(--lime);color:var(--dark)">MEX</span>
+        <span class="flag-pill" style="background:var(--red);color:var(--light)">CAN</span>
+      </div>
+      <div id="header-right"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     TICKER
+═══════════════════════════════════════════════ -->
+<div class="ticker">
+  <div class="tick-item"><div class="tick-dot"></div><span id="tick-players">0 Players</span></div>
+  <div class="tick-sep">◆</div>
+  <div class="tick-item"><div class="tick-dot"></div><span id="tick-pot">$0 Pot</span></div>
+  <div class="tick-sep">◆</div>
+  <div class="tick-item"><div class="tick-dot"></div><span id="tick-gs">Group Stage: Closed</span></div>
+  <div class="tick-sep">◆</div>
+  <div class="tick-item"><div class="tick-dot"></div><span id="tick-ko">Knockout: Closed</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     TABS (hidden until logged in)
+═══════════════════════════════════════════════ -->
+<div class="tabs" id="main-tabs" style="display:none">
+  <button class="tab active" onclick="switchTab('leaderboard',this)">Standings</button>
+  <button class="tab" onclick="switchTab('predictions',this)">My Picks</button>
+  <button class="tab" onclick="switchTab('rules',this)">Rules</button>
+  <button class="tab" id="tab-admin-btn" onclick="switchTab('admin',this)" style="display:none">⚙ Admin</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: LANDING
+═══════════════════════════════════════════════ -->
+<div class="screen active" id="screen-landing">
+
+  <!-- Hero split -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;min-height:220px">
+    <div style="background:var(--purple);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:1.5rem 1.25rem">
+      <div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.07) 1px,transparent 1px);background-size:7px 7px;pointer-events:none"></div>
+      <div style="position:absolute;top:0;right:0;width:60%;height:100%;background:linear-gradient(135deg,transparent 40%,rgba(227,30,36,.25) 100%);pointer-events:none"></div>
+      <div style="position:relative;z-index:1">
+        <div style="font-family:var(--font-d);font-size:3.5rem;letter-spacing:.08em;color:var(--light);line-height:.88">LA<br>RAZITA</div>
+        <div style="font-family:var(--font-d);font-size:1.2rem;letter-spacing:.25em;color:var(--lime);margin-top:.4rem">QUINIELA</div>
+        <div style="font-family:var(--font-s);font-size:.72rem;font-weight:600;letter-spacing:.1em;color:rgba(255,255,255,.45);margin-top:.3rem;text-transform:uppercase">World Cup 2026 · June 11 — July 19</div>
+      </div>
+    </div>
+    <div style="background:var(--lime);display:flex;flex-direction:column;justify-content:space-between;padding:1.1rem">
+      <div id="landing-stats" style="display:flex;flex-direction:column;gap:.35rem"></div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.65rem">
+        <button class="btn btn-primary" style="width:100%;font-size:.9rem" onclick="showScreen('screen-select')">
+          <span><i class="ti ti-user" aria-hidden="true"></i> I'm a player</span>
+        </button>
+        <button class="btn btn-secondary" style="width:100%" onclick="showScreen('screen-admin-login')">
+          <span><i class="ti ti-lock" aria-hidden="true"></i> Admin</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stats-block" style="background:var(--red)">
+      <span class="stats-block-icon"><i class="ti ti-users" aria-hidden="true"></i></span>
+      <div><div class="stats-block-num">48</div><div class="stats-block-lbl">Teams</div></div>
+    </div>
+    <div class="stats-block" style="background:var(--dark2)">
+      <span class="stats-block-icon"><i class="ti ti-ball-football" aria-hidden="true"></i></span>
+      <div><div class="stats-block-num">104</div><div class="stats-block-lbl">Matches</div></div>
+    </div>
+    <div class="stats-block" style="background:var(--purple)">
+      <span class="stats-block-icon"><i class="ti ti-world" aria-hidden="true"></i></span>
+      <div><div class="stats-block-num">3</div><div class="stats-block-lbl">Host Nations</div></div>
+    </div>
+    <div class="stats-block" style="background:var(--dark3)">
+      <span class="stats-block-icon"><i class="ti ti-building-stadium" aria-hidden="true"></i></span>
+      <div><div class="stats-block-num">16</div><div class="stats-block-lbl">Host Cities</div></div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div style="background:var(--dark2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div style="padding:.65rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem">
+      <div style="font-family:var(--font-d);font-size:1rem;letter-spacing:.15em;color:var(--light);text-transform:uppercase">How It Works</div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="how-num" style="color:var(--red)">01</div>
+        <div class="how-title">Join the group</div>
+        <div class="how-body">Request to join. The admin approves you and you're in. $50 buy-in per player.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num" style="color:var(--purple)">02</div>
+        <div class="how-title">Make your picks</div>
+        <div class="how-body">Predict all 48 group stage results before kickoff. Then pick the knockout bracket once it's set.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num" style="color:var(--lime)">03</div>
+        <div class="how-title">Win the pot</div>
+        <div class="how-body">Points stack up as results come in. Top 3 share the pot — 60%, 30%, 10%.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer tag -->
+  <div class="footer-tag">
+    <span class="footer-tag-text">Play. Compete. <span class="footer-highlight">Bragging Rights.</span></span>
+    <span class="footer-tag-text">LRC '26</span>
+  </div>
+
+  <!-- Landing leaderboard preview -->
+  <div id="landing-lb" style="padding:1.25rem"></div>
+
+</div><!-- /screen-landing -->
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: SELECT PLAYER
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen-select">
+  <div class="content">
+    <button class="btn btn-ghost btn-sm" style="margin-bottom:1rem" onclick="showScreen('screen-landing')">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i> Back
+    </button>
+    <div class="panel">
+      <div class="panel-title">Who are you?</div>
+      <div id="player-select-list"></div>
+      <div class="divider"></div>
+      <div class="sec-label">Not listed? Request to join</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        <input type="text" id="new-name" placeholder="Your name" maxlength="24"/>
+        <input type="password" id="new-pin" placeholder="Choose a 4-digit PIN" maxlength="4" inputmode="numeric"/>
+        <button class="btn btn-lime btn-sm" onclick="requestJoin()" style="align-self:flex-start">Request</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: PENDING APPROVAL
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen-pending">
+  <div style="text-align:center;padding:3rem 1.5rem">
+    <div style="font-size:2.5rem;margin-bottom:.75rem">⏳</div>
+    <div style="font-family:var(--font-d);font-size:1.8rem;letter-spacing:.15em;color:var(--lime);margin-bottom:.5rem">Request Sent!</div>
+    <div style="font-size:.875rem;color:var(--muted);max-width:260px;margin:0 auto;line-height:1.6;font-family:var(--font-b)">
+      The admin will review your request. Come back once you've been approved!
+    </div>
+    <button class="btn btn-ghost btn-sm" style="margin-top:1.5rem" onclick="showScreen('screen-landing')">Back to home</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: ADMIN LOGIN
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen-admin-login">
+  <div class="content">
+    <button class="btn btn-ghost btn-sm" style="margin-bottom:1rem" onclick="showScreen('screen-landing')">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i> Back
+    </button>
+    <div class="panel" style="max-width:300px">
+      <div class="panel-title">Admin Login</div>
+      <div class="field">
+        <label>PIN</label>
+        <input type="password" id="admin-pin" placeholder="••••" maxlength="10"/>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="adminLogin()">Enter</button>
+      <div id="pin-err" style="color:var(--red);font-size:.8rem;margin-top:.5rem;display:none;font-family:var(--font-b)">Incorrect PIN</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN: MAIN APP (tabs render into these divs)
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen-app">
+  <div id="tab-leaderboard" style="padding:1.25rem"></div>
+  <div id="tab-predictions" style="padding:1.25rem;display:none"></div>
+  <div id="tab-rules" style="padding:1.25rem;display:none"></div>
+  <div id="tab-admin" style="padding:1.25rem;display:none"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════ -->
+<script>
+// ── CONFIG ──────────────────────────────────────
+const ADMIN_PIN = '1624';
+const BUY_IN    = 50;
+const STORAGE_KEY = 'lrc_q_v7';
+
+// ── AVATAR COLORS (assigned in approval order) ──
+const AV_COLORS = [
+  ['#5A1BFF','#fff'],['#E31E24','#fff'],['#2a8a00','#fff'],['#1A4B9B','#fff'],
+  ['#c07010','#fff'],['#0a7a6a','#fff'],['#a02060','#fff'],['#0a6a9a','#fff'],
+  ['#7a1a7a','#fff'],['#3a6a10','#fff'],['#8B3FE8','#fff'],['#c83030','#fff'],
+  ['#006B3F','#fff'],['#c8a000','#000'],['#2a4a9a','#fff'],['#9a3a20','#fff']
+];
+
+// ── FIXTURE DATA — All 12 groups, 48 matches (Official FIFA WC2026 schedule) ──
+// Source: Yahoo Sports / FIFA official schedule release. Verified May 2026.
+// Fields: id, g (group), h (home), a (away), date, city, md (matchday 1/2/3)
+const GROUPS = [
+  {g:'A', matches:[
+    {id:'A1', g:'A', h:'MEX', a:'ZAF', date:'Jun 11', city:'Mexico City',   md:1},
+    {id:'A2', g:'A', h:'KOR', a:'CZE', date:'Jun 11', city:'Zapopan',       md:1},
+    {id:'A3', g:'A', h:'CZE', a:'ZAF', date:'Jun 18', city:'Atlanta',       md:2},
+    {id:'A4', g:'A', h:'MEX', a:'KOR', date:'Jun 18', city:'Zapopan',       md:2},
+    {id:'A5', g:'A', h:'CZE', a:'MEX', date:'Jun 24', city:'Mexico City',   md:3},
+    {id:'A6', g:'A', h:'ZAF', a:'KOR', date:'Jun 24', city:'Monterrey',     md:3},
+  ]},
+  {g:'B', matches:[
+    {id:'B1', g:'B', h:'CAN', a:'BIH', date:'Jun 12', city:'Toronto',       md:1},
+    {id:'B2', g:'B', h:'QAT', a:'SUI', date:'Jun 13', city:'Santa Clara',   md:1},
+    {id:'B3', g:'B', h:'SUI', a:'BIH', date:'Jun 18', city:'Inglewood',     md:2},
+    {id:'B4', g:'B', h:'CAN', a:'QAT', date:'Jun 18', city:'Vancouver',     md:2},
+    {id:'B5', g:'B', h:'SUI', a:'CAN', date:'Jun 24', city:'Vancouver',     md:3},
+    {id:'B6', g:'B', h:'BIH', a:'QAT', date:'Jun 24', city:'Seattle',       md:3},
+  ]},
+  {g:'C', matches:[
+    {id:'C1', g:'C', h:'BRA', a:'MAR', date:'Jun 13', city:'E. Rutherford', md:1},
+    {id:'C2', g:'C', h:'HAI', a:'SCO', date:'Jun 13', city:'Foxborough',    md:1},
+    {id:'C3', g:'C', h:'SCO', a:'MAR', date:'Jun 19', city:'Foxborough',    md:2},
+    {id:'C4', g:'C', h:'BRA', a:'HAI', date:'Jun 19', city:'Philadelphia',  md:2},
+    {id:'C5', g:'C', h:'SCO', a:'BRA', date:'Jun 24', city:'Miami Gardens', md:3},
+    {id:'C6', g:'C', h:'MAR', a:'HAI', date:'Jun 24', city:'Atlanta',       md:3},
+  ]},
+  {g:'D', matches:[
+    {id:'D1', g:'D', h:'USA', a:'PAR', date:'Jun 12', city:'Inglewood',     md:1},
+    {id:'D2', g:'D', h:'AUS', a:'TUR', date:'Jun 14', city:'Vancouver',     md:1},
+    {id:'D3', g:'D', h:'USA', a:'AUS', date:'Jun 19', city:'Seattle',       md:2},
+    {id:'D4', g:'D', h:'TUR', a:'PAR', date:'Jun 19', city:'Santa Clara',   md:2},
+    {id:'D5', g:'D', h:'TUR', a:'USA', date:'Jun 25', city:'Inglewood',     md:3},
+    {id:'D6', g:'D', h:'PAR', a:'AUS', date:'Jun 25', city:'Santa Clara',   md:3},
+  ]},
+  {g:'E', matches:[
+    {id:'E1', g:'E', h:'GER', a:'CUW', date:'Jun 14', city:'Houston',       md:1},
+    {id:'E2', g:'E', h:'CIV', a:'ECU', date:'Jun 14', city:'Philadelphia',  md:1},
+    {id:'E3', g:'E', h:'GER', a:'CIV', date:'Jun 20', city:'Toronto',       md:2},
+    {id:'E4', g:'E', h:'ECU', a:'CUW', date:'Jun 20', city:'Kansas City',   md:2},
+    {id:'E5', g:'E', h:'CUW', a:'CIV', date:'Jun 25', city:'Philadelphia',  md:3},
+    {id:'E6', g:'E', h:'ECU', a:'GER', date:'Jun 25', city:'E. Rutherford', md:3},
+  ]},
+  {g:'F', matches:[
+    {id:'F1', g:'F', h:'NED', a:'JPN', date:'Jun 14', city:'Arlington',     md:1},
+    {id:'F2', g:'F', h:'SWE', a:'TUN', date:'Jun 14', city:'Monterrey',     md:1},
+    {id:'F3', g:'F', h:'NED', a:'SWE', date:'Jun 20', city:'Houston',       md:2},
+    {id:'F4', g:'F', h:'TUN', a:'JPN', date:'Jun 21', city:'Monterrey',     md:2},
+    {id:'F5', g:'F', h:'JPN', a:'SWE', date:'Jun 25', city:'Arlington',     md:3},
+    {id:'F6', g:'F', h:'TUN', a:'NED', date:'Jun 25', city:'Kansas City',   md:3},
+  ]},
+  {g:'G', matches:[
+    {id:'G1', g:'G', h:'BEL', a:'EGY', date:'Jun 15', city:'Seattle',       md:1},
+    {id:'G2', g:'G', h:'IRN', a:'NZL', date:'Jun 15', city:'Inglewood',     md:1},
+    {id:'G3', g:'G', h:'BEL', a:'IRN', date:'Jun 21', city:'Inglewood',     md:2},
+    {id:'G4', g:'G', h:'NZL', a:'EGY', date:'Jun 21', city:'Vancouver',     md:2},
+    {id:'G5', g:'G', h:'EGY', a:'IRN', date:'Jun 26', city:'Seattle',       md:3},
+    {id:'G6', g:'G', h:'NZL', a:'BEL', date:'Jun 26', city:'Vancouver',     md:3},
+  ]},
+  {g:'H', matches:[
+    {id:'H1', g:'H', h:'ESP', a:'CPV', date:'Jun 15', city:'Atlanta',       md:1},
+    {id:'H2', g:'H', h:'KSA', a:'URU', date:'Jun 15', city:'Miami Gardens', md:1},
+    {id:'H3', g:'H', h:'ESP', a:'KSA', date:'Jun 21', city:'Atlanta',       md:2},
+    {id:'H4', g:'H', h:'URU', a:'CPV', date:'Jun 21', city:'Miami Gardens', md:2},
+    {id:'H5', g:'H', h:'CPV', a:'KSA', date:'Jun 26', city:'Houston',       md:3},
+    {id:'H6', g:'H', h:'URU', a:'ESP', date:'Jun 26', city:'Zapopan',       md:3},
+  ]},
+  {g:'I', matches:[
+    {id:'I1', g:'I', h:'FRA', a:'SEN', date:'Jun 16', city:'E. Rutherford', md:1},
+    {id:'I2', g:'I', h:'IRQ', a:'NOR', date:'Jun 16', city:'Foxborough',    md:1},
+    {id:'I3', g:'I', h:'FRA', a:'IRQ', date:'Jun 22', city:'Philadelphia',  md:2},
+    {id:'I4', g:'I', h:'NOR', a:'SEN', date:'Jun 22', city:'E. Rutherford', md:2},
+    {id:'I5', g:'I', h:'NOR', a:'FRA', date:'Jun 26', city:'Foxborough',    md:3},
+    {id:'I6', g:'I', h:'SEN', a:'IRQ', date:'Jun 26', city:'Toronto',       md:3},
+  ]},
+  {g:'J', matches:[
+    {id:'J1', g:'J', h:'ARG', a:'ALG', date:'Jun 16', city:'Kansas City',   md:1},
+    {id:'J2', g:'J', h:'AUT', a:'JOR', date:'Jun 17', city:'Santa Clara',   md:1},
+    {id:'J3', g:'J', h:'ARG', a:'AUT', date:'Jun 22', city:'Arlington',     md:2},
+    {id:'J4', g:'J', h:'JOR', a:'ALG', date:'Jun 22', city:'Santa Clara',   md:2},
+    {id:'J5', g:'J', h:'ALG', a:'AUT', date:'Jun 27', city:'Kansas City',   md:3},
+    {id:'J6', g:'J', h:'JOR', a:'ARG', date:'Jun 27', city:'Arlington',     md:3},
+  ]},
+  {g:'K', matches:[
+    {id:'K1', g:'K', h:'POR', a:'CGO', date:'Jun 17', city:'Houston',       md:1},
+    {id:'K2', g:'K', h:'UZB', a:'COL', date:'Jun 17', city:'Mexico City',   md:1},
+    {id:'K3', g:'K', h:'POR', a:'UZB', date:'Jun 23', city:'Houston',       md:2},
+    {id:'K4', g:'K', h:'COL', a:'CGO', date:'Jun 23', city:'Zapopan',       md:2},
+    {id:'K5', g:'K', h:'COL', a:'POR', date:'Jun 27', city:'Miami Gardens', md:3},
+    {id:'K6', g:'K', h:'CGO', a:'UZB', date:'Jun 27', city:'Atlanta',       md:3},
+  ]},
+  {g:'L', matches:[
+    {id:'L1', g:'L', h:'ENG', a:'CRO', date:'Jun 17', city:'Arlington',     md:1},
+    {id:'L2', g:'L', h:'GHA', a:'PAN', date:'Jun 17', city:'Toronto',       md:1},
+    {id:'L3', g:'L', h:'ENG', a:'GHA', date:'Jun 23', city:'Foxborough',    md:2},
+    {id:'L4', g:'L', h:'PAN', a:'CRO', date:'Jun 23', city:'Toronto',       md:2},
+    {id:'L5', g:'L', h:'PAN', a:'ENG', date:'Jun 27', city:'E. Rutherford', md:3},
+    {id:'L6', g:'L', h:'CRO', a:'GHA', date:'Jun 27', city:'Philadelphia',  md:3},
+  ]},
+];
+
+// ── KNOCKOUT ROUNDS ──────────────────────────────
+const KO_ROUNDS = [
+  {id:'r32', label:'Round of 32',     pts:2},
+  {id:'r16', label:'Round of 16',     pts:3},
+  {id:'qf',  label:'Quarterfinals',   pts:4},
+  {id:'sf',  label:'Semifinals',      pts:6},
+  {id:'tp',  label:'3rd Place Match', pts:4},
+  {id:'fin', label:'Final',           pts:8},
+];
+
+// ── KNOCKOUT BRACKET ─────────────────────────────
+// Static skeleton of all 32 KO matches.
+// Source: ESPN / FIFA official R32 matchup schedule.
+// t1/t2: actual team codes, filled by admin after group stage (null until then).
+// winner: set by admin after each match is played.
+// nextId/nextSlot: encodes bracket progression — winner auto-propagates.
+// 3rd-place slots are admin-assigned (FIFA's lookup table has 495 combinations).
+const KO_BRACKET = [
+  // ── ROUND OF 32 (M01–M16) ──────────────────────
+  { id:'M01', round:'r32', pts:2, t1Label:'Runner-up A',        t2Label:'Runner-up B',          nextId:'M17', nextSlot:1 },
+  { id:'M02', round:'r32', pts:2, t1Label:'Winner C',           t2Label:'Runner-up F',           nextId:'M17', nextSlot:2 },
+  { id:'M03', round:'r32', pts:2, t1Label:'Winner E',           t2Label:'Best 3rd (A/B/C/D/F)',  nextId:'M18', nextSlot:1 },
+  { id:'M04', round:'r32', pts:2, t1Label:'Winner F',           t2Label:'Runner-up C',           nextId:'M18', nextSlot:2 },
+  { id:'M05', round:'r32', pts:2, t1Label:'Runner-up E',        t2Label:'Runner-up I',           nextId:'M19', nextSlot:1 },
+  { id:'M06', round:'r32', pts:2, t1Label:'Winner I',           t2Label:'Best 3rd (C/D/F/G/H)',  nextId:'M19', nextSlot:2 },
+  { id:'M07', round:'r32', pts:2, t1Label:'Winner A',           t2Label:'Best 3rd (C/E/F/H/I)',  nextId:'M20', nextSlot:1 },
+  { id:'M08', round:'r32', pts:2, t1Label:'Winner L',           t2Label:'Best 3rd (E/H/I/J/K)',  nextId:'M20', nextSlot:2 },
+  { id:'M09', round:'r32', pts:2, t1Label:'Winner G',           t2Label:'Best 3rd (A/E/H/I/J)',  nextId:'M21', nextSlot:1 },
+  { id:'M10', round:'r32', pts:2, t1Label:'Winner D',           t2Label:'Best 3rd (B/E/F/I/J)',  nextId:'M21', nextSlot:2 },
+  { id:'M11', round:'r32', pts:2, t1Label:'Winner H',           t2Label:'Runner-up J',           nextId:'M22', nextSlot:1 },
+  { id:'M12', round:'r32', pts:2, t1Label:'Runner-up K',        t2Label:'Runner-up L',           nextId:'M22', nextSlot:2 },
+  { id:'M13', round:'r32', pts:2, t1Label:'Winner B',           t2Label:'Best 3rd (E/F/G/I/J)',  nextId:'M23', nextSlot:1 },
+  { id:'M14', round:'r32', pts:2, t1Label:'Runner-up D',        t2Label:'Runner-up G',           nextId:'M23', nextSlot:2 },
+  { id:'M15', round:'r32', pts:2, t1Label:'Winner J',           t2Label:'Runner-up H',           nextId:'M24', nextSlot:1 },
+  { id:'M16', round:'r32', pts:2, t1Label:'Winner K',           t2Label:'Best 3rd (D/E/I/J/L)',  nextId:'M24', nextSlot:2 },
+  // ── ROUND OF 16 (M17–M24) ──────────────────────
+  { id:'M17', round:'r16', pts:3, t1Label:'Winner M01',         t2Label:'Winner M02',            nextId:'M25', nextSlot:1 },
+  { id:'M18', round:'r16', pts:3, t1Label:'Winner M03',         t2Label:'Winner M04',            nextId:'M25', nextSlot:2 },
+  { id:'M19', round:'r16', pts:3, t1Label:'Winner M05',         t2Label:'Winner M06',            nextId:'M26', nextSlot:1 },
+  { id:'M20', round:'r16', pts:3, t1Label:'Winner M07',         t2Label:'Winner M08',            nextId:'M26', nextSlot:2 },
+  { id:'M21', round:'r16', pts:3, t1Label:'Winner M09',         t2Label:'Winner M10',            nextId:'M27', nextSlot:1 },
+  { id:'M22', round:'r16', pts:3, t1Label:'Winner M11',         t2Label:'Winner M12',            nextId:'M27', nextSlot:2 },
+  { id:'M23', round:'r16', pts:3, t1Label:'Winner M13',         t2Label:'Winner M14',            nextId:'M28', nextSlot:1 },
+  { id:'M24', round:'r16', pts:3, t1Label:'Winner M15',         t2Label:'Winner M16',            nextId:'M28', nextSlot:2 },
+  // ── QUARTERFINALS (M25–M28) ────────────────────
+  { id:'M25', round:'qf',  pts:4, t1Label:'Winner M17',         t2Label:'Winner M18',            nextId:'M29', nextSlot:1 },
+  { id:'M26', round:'qf',  pts:4, t1Label:'Winner M19',         t2Label:'Winner M20',            nextId:'M29', nextSlot:2 },
+  { id:'M27', round:'qf',  pts:4, t1Label:'Winner M21',         t2Label:'Winner M22',            nextId:'M30', nextSlot:1 },
+  { id:'M28', round:'qf',  pts:4, t1Label:'Winner M23',         t2Label:'Winner M24',            nextId:'M30', nextSlot:2 },
+  // ── SEMIFINALS (M29–M30) ───────────────────────
+  { id:'M29', round:'sf',  pts:6, t1Label:'Winner M25',         t2Label:'Winner M26',            nextId:'M32', nextSlot:1 },
+  { id:'M30', round:'sf',  pts:6, t1Label:'Winner M27',         t2Label:'Winner M28',            nextId:'M32', nextSlot:2 },
+  // ── 3RD PLACE (M31) ────────────────────────────
+  // Loser of M29 vs loser of M30. nextId null — terminal match.
+  { id:'M31', round:'tp',  pts:4, t1Label:'Loser M29',          t2Label:'Loser M30',             nextId:null,  nextSlot:null },
+  // ── FINAL (M32) ────────────────────────────────
+  { id:'M32', round:'fin', pts:8, t1Label:'Winner M29',         t2Label:'Winner M30',            nextId:null,  nextSlot:null },
+];
+
+// ── STATE ────────────────────────────────────────
+let S = {};
+let me = null;
+let isAdmin = false;
+
+// ── STORAGE ──────────────────────────────────────
+// Uses window.storage (Claude artifact) when available, falls back to localStorage.
+function hasArtifactStorage() {
+  return typeof window.storage !== 'undefined' && window.storage !== null;
+}
+async function loadState() {
+  try {
+    if (hasArtifactStorage()) {
+      const r = await window.storage.get(STORAGE_KEY, true);
+      S = (r && r.value) ? JSON.parse(r.value) : freshState();
+    } else {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      S = raw ? JSON.parse(raw) : freshState();
+    }
+  } catch(e) { S = freshState(); }
+}
+async function saveState() {
+  try {
+    if (hasArtifactStorage()) {
+      await window.storage.set(STORAGE_KEY, JSON.stringify(S), true);
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(S));
+    }
+  } catch(e) { console.error('Storage save failed', e); }
+}
+function freshState() {
+  // koMatches holds mutable per-match state (teams, winner, ET/PEN).
+  // Keyed by match ID (M01–M32). Populated by admin during the tournament.
+  const km = {};
+  KO_BRACKET.forEach(m => { km[m.id] = { t1:null, t2:null, winner:null, et:false, pen:false }; });
+  return { players:[], windows:{gs:false, ko:false}, gRes:{}, preds:{}, locked:{}, photos:{}, pins:{}, koMatches:km };
+}
+
+// ── HELPERS ──────────────────────────────────────
+function initials(name) {
+  return name.trim().split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+}
+function playerColor(name) {
+  const approved = S.players.filter(p => p.status === 'approved');
+  const i = approved.findIndex(p => p.name === name);
+  return AV_COLORS[Math.max(i, 0) % AV_COLORS.length];
+}
+function avatarEl(name, size = 36) {
+  const photo = S.photos && S.photos[name];
+  if (photo) return `<img src="${photo}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="${name}"/>`;
+  const [bg, fg] = playerColor(name);
+  return `<div class="av" style="width:${size}px;height:${size}px;background:${bg};color:${fg};font-size:${Math.round(size*.32)}px">${initials(name)}</div>`;
+}
+function pot() {
+  return S.players.filter(p => p.status === 'approved').length * BUY_IN;
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'screen-select') renderPlayerSelect();
+}
+function updateTicker() {
+  const n = S.players.filter(p => p.status === 'approved').length;
+  document.getElementById('tick-players').textContent = `${n} Player${n !== 1 ? 's' : ''}`;
+  document.getElementById('tick-pot').textContent     = `$${n * BUY_IN} Pot`;
+  document.getElementById('tick-gs').textContent      = `Group Stage: ${S.windows.gs ? 'Open' : 'Closed'}`;
+  document.getElementById('tick-ko').textContent      = `Knockout: ${S.windows.ko ? 'Open' : 'Closed'}`;
+}
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ['leaderboard','predictions','rules','admin'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = (t === name) ? 'block' : 'none';
+  });
+  if (name === 'leaderboard')  renderLeaderboard();
+  if (name === 'predictions')  renderPredictions();
+  if (name === 'rules')        renderRules();
+  if (name === 'admin')        renderAdmin();
+}
+function updateHeader() {
+  const hr = document.getElementById('header-right');
+  if (me || isAdmin) {
+    const label = isAdmin ? 'ADMIN' : me.toUpperCase();
+    hr.innerHTML = `<span style="font-family:var(--font-s);font-size:.78rem;font-weight:600;letter-spacing:.06em;color:rgba(255,255,255,.7);margin-right:.4rem">${label}</span><button class="btn btn-ghost btn-sm" onclick="logout()">Exit</button>`;
+  } else {
+    hr.innerHTML = '';
+  }
+}
+function logout() {
+  me = null; isAdmin = false;
+  document.getElementById('main-tabs').style.display = 'none';
+  document.getElementById('tab-admin-btn').style.display = 'none';
+  updateHeader();
+  renderLandingPage();
+  showScreen('screen-landing');
+}
+function enterApp(admin = false) {
+  document.getElementById('main-tabs').style.display = 'flex';
+  document.getElementById('tab-admin-btn').style.display = admin ? 'flex' : 'none';
+  updateHeader();
+  showScreen('screen-app');
+  switchTab('leaderboard', document.querySelector('.tabs .tab'));
+}
+
+// ── AUTH ─────────────────────────────────────────
+function adminLogin() {
+  const pin = document.getElementById('admin-pin').value;
+  if (pin === ADMIN_PIN) {
+    isAdmin = true; me = null;
+    document.getElementById('pin-err').style.display = 'none';
+    document.getElementById('admin-pin').value = '';
+    enterApp(true);
+  } else {
+    document.getElementById('pin-err').style.display = 'block';
+  }
+}
+function selectPlayer(name) {
+  me = name; isAdmin = false;
+  enterApp(false);
+}
+async function requestJoin() {
+  const el    = document.getElementById('new-name');
+  const pinEl = document.getElementById('new-pin');
+  const name  = el.value.trim();
+  const pin   = pinEl.value.trim();
+  if (!name) { toast('Enter your name'); return; }
+  if (!/^\d{4}$/.test(pin)) { toast('PIN must be exactly 4 digits'); return; }
+  if (S.players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+    toast('Name taken — pick yourself from the list'); return;
+  }
+  if (!S.pins) S.pins = {};
+  S.pins[name] = pin;
+  S.players.push({ name, status:'pending', pts:0, exactScores:0 });
+  await saveState();
+  el.value = ''; pinEl.value = '';
+  updateTicker();
+  toast('Request sent!');
+  showScreen('screen-pending');
+}
+
+// ── LANDING ──────────────────────────────────────
+function renderLandingPage() {
+  updateTicker();
+  const approved = S.players.filter(p => p.status === 'approved');
+  const n = approved.length;
+  const p = n * BUY_IN;
+
+  document.getElementById('landing-stats').innerHTML = `
+    <div style="background:rgba(0,0,0,.18);border-radius:2px;padding:.4rem .75rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-family:var(--font-s);font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dark2)">Players</span>
+      <span style="font-family:var(--font-d);font-size:1.4rem;color:var(--dark);letter-spacing:.06em">${n}</span>
+    </div>
+    <div style="background:rgba(0,0,0,.18);border-radius:2px;padding:.4rem .75rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-family:var(--font-s);font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dark2)">Pot</span>
+      <span style="font-family:var(--font-d);font-size:1.4rem;color:var(--dark);letter-spacing:.06em">$${p}</span>
+    </div>
+    <div style="background:rgba(0,0,0,.18);border-radius:2px;padding:.4rem .75rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-family:var(--font-s);font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dark2)">Status</span>
+      <span style="font-family:var(--font-s);font-size:.85rem;font-weight:600;color:${S.windows.gs||S.windows.ko?'var(--red)':'var(--dark3)'}">${S.windows.gs||S.windows.ko?'OPEN':'TBD'}</span>
+    </div>`;
+
+  const lbEl = document.getElementById('landing-lb');
+  if (!approved.length) { lbEl.innerHTML = ''; return; }
+  const sorted = [...approved].sort((a,b) => (b.pts||0) - (a.pts||0));
+  const medals = ['🥇','🥈','🥉'];
+  let h = `<div class="sec-label">Current Standings</div>`;
+  sorted.forEach((pl, i) => {
+    const cls   = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const prize = i===0?`$${Math.round(p*.6)}`:i===1?`$${Math.round(p*.3)}`:i===2?`$${Math.round(p*.1)}`:'';
+    h += `<div class="lb-row ${cls}">
+      <div class="lb-rank">${i<3?medals[i]:i+1}</div>
+      <div>${avatarEl(pl.name, 34)}</div>
+      <div>
+        <div class="lb-name">${pl.name}${prize?` <span style="font-family:var(--font-s);font-size:.7rem;color:var(--lime);margin-left:.3rem">${prize}</span>`:''}</div>
+        <div class="lb-meta">${pl.pts||0} pts</div>
+      </div>
+      <div class="lb-pts">${pl.pts||0}</div>
+    </div>`;
+  });
+  lbEl.innerHTML = h;
+}
+
+// ── PLAYER SELECT ────────────────────────────────
+function renderPlayerSelect() {
+  const approved = S.players.filter(p => p.status === 'approved');
+  const el = document.getElementById('player-select-list');
+  if (!approved.length) { el.innerHTML = `<div class="empty">No approved players yet.</div>`; return; }
+  el.innerHTML = approved.map(p => `
+    <div class="ps-btn" style="cursor:default">
+      ${avatarEl(p.name, 38)}
+      <div style="flex:1">
+        <div class="ps-name">${p.name}</div>
+        <div class="ps-meta">${S.locked[p.name] ? '✓ Predictions submitted' : 'Predictions pending'}</div>
+      </div>
+      <div style="display:flex;gap:.35rem;align-items:center">
+        <input type="password" placeholder="PIN" maxlength="4" inputmode="numeric"
+          id="pin_${p.name.replace(/\s+/g,'_')}"
+          style="width:64px;padding:.28rem .4rem;font-size:.85rem"
+          onkeydown="if(event.key==='Enter')verifyPin('${p.name}')"/>
+        <button class="btn btn-primary btn-sm" onclick="verifyPin('${p.name}')">Go</button>
+      </div>
+    </div>`).join('');
+}
+function verifyPin(name) {
+  const key = 'pin_' + name.replace(/\s+/g,'_');
+  const entered = (document.getElementById(key) || {}).value || '';
+  const stored  = (S.pins || {})[name] || '';
+  if (!stored)         { selectPlayer(name); return; }  // no PIN set — let through (legacy)
+  if (entered === stored) { selectPlayer(name); return; }
+  toast('Incorrect PIN');
+  document.getElementById(key).value = '';
+}
+
+// ── LEADERBOARD ──────────────────────────────────
+function renderLeaderboard() {
+  const approved = S.players.filter(p => p.status === 'approved');
+  const el = document.getElementById('tab-leaderboard');
+  const p  = pot();
+  if (!approved.length) { el.innerHTML = `<div class="empty" style="padding:3rem">⚽ No players yet!</div>`; return; }
+  const sorted = [...approved].sort((a,b) => (b.pts||0) - (a.pts||0));
+  const max    = Math.max(...sorted.map(pl => pl.pts||0), 1);
+  let h = `<div class="stat-row">
+    <div class="stat-box"><div class="stat-val" style="color:var(--purple)">${approved.length}</div><div class="stat-lbl">Players</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--lime)">$${p}</div><div class="stat-lbl">Pot</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--lime)">$${Math.round(p*.6)}</div><div class="stat-lbl">1st Prize</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--muted)">$${Math.round(p*.3)}</div><div class="stat-lbl">2nd Prize</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:#c08040">$${Math.round(p*.1)}</div><div class="stat-lbl">3rd Prize</div></div>
+  </div>`;
+  const medals = ['🥇','🥈','🥉'];
+  sorted.forEach((pl, i) => {
+    const cls   = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const prize = i===0?`$${Math.round(p*.6)}`:i===1?`$${Math.round(p*.3)}`:i===2?`$${Math.round(p*.1)}`:'';
+    const pct   = Math.round(((pl.pts||0)/max)*100);
+    h += `<div class="lb-row ${cls}">
+      <div class="lb-rank">${i<3?medals[i]:i+1}</div>
+      <div>${avatarEl(pl.name, 38)}</div>
+      <div style="min-width:0">
+        <div class="lb-name">${pl.name}${prize?` <span style="font-family:var(--font-s);font-size:.7rem;color:var(--lime);margin-left:.35rem">${prize}</span>`:''}</div>
+        <div class="lb-meta">${pl.exactScores||0} exact · ${S.locked[pl.name]?'<span style="color:var(--lime)">submitted</span>':'pending'}</div>
+        <div class="lb-bar-wrap"><div class="lb-bar" style="width:${pct}%"></div></div>
+      </div>
+      <div class="lb-pts">${pl.pts||0}</div>
+    </div>`;
+  });
+  el.innerHTML = h;
+}
+
+// ── PREDICTIONS ───────────────────────────────────
+function setPred(matchId, field, value) {
+  if (!S.preds[me])          S.preds[me]          = {};
+  if (!S.preds[me][matchId]) S.preds[me][matchId] = {};
+  S.preds[me][matchId][field] = value;
+}
+function setScore(matchId, shVal, saVal) {
+  if (!S.preds[me]) S.preds[me] = {};
+  if (shVal === '' || saVal === '') {
+    // either field cleared — remove prediction for this match
+    delete S.preds[me][matchId];
+    return;
+  }
+  const sh = parseInt(shVal, 10);
+  const sa = parseInt(saVal, 10);
+  if (isNaN(sh) || isNaN(sa)) { delete S.preds[me][matchId]; return; }
+  const r = sh > sa ? '1' : sh === sa ? 'X' : '2';
+  S.preds[me][matchId] = { sh, sa, r };
+}
+async function saveDraft()  { await saveState(); toast('Draft saved!'); }
+async function lockPreds() {
+  console.log('[lock] lockPreds called, me=', me);
+  const preds   = S.preds[me] || {};
+  const total   = GROUPS.reduce((n, g) => n + g.matches.length, 0);
+  const picked  = GROUPS.reduce((n, g) => n + g.matches.filter(m => preds[m.id] && preds[m.id].r).length, 0);
+  console.log('[lock] total=', total, 'picked=', picked);
+  if (picked === 0) { toast('Make at least one pick before locking!'); return; }
+  const msg = picked < Math.ceil(total / 2)
+    ? `You've only picked ${picked} of ${total} matches. Lock anyway? (Only the admin can unlock)`
+    : 'Lock in your predictions? Only the admin can unlock them.';
+  console.log('[lock] showing confirm dialog');
+  if (!confirm(msg)) return;
+  S.locked[me] = true;
+  await saveState();
+  toast('Locked! 🔒');
+  renderPredictions();
+  renderLeaderboard();
+}
+async function uploadPhoto(e) {
+  const file = e.target.files[0];
+  if (!file || !me) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    if (!S.photos) S.photos = {};
+    S.photos[me] = ev.target.result;
+    await saveState();
+    toast('Photo updated!');
+    renderPredictions();
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderPredictions() {
+  const el     = document.getElementById('tab-predictions');
+  if (!me || isAdmin) { el.innerHTML = `<div class="empty">Select a player first</div>`; return; }
+  const locked = S.locked[me];
+  const preds  = S.preds[me] || {};
+  const gsOpen = S.windows.gs;
+  const koOpen = S.windows.ko;
+  const photo  = S.photos && S.photos[me];
+
+  // Profile bar
+  let h = `<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;padding:.85rem 1rem;background:var(--dark2);border:1px solid var(--border);border-radius:2px">
+    <div class="photo-upload" title="Tap to upload photo">
+      <div class="photo-ring">${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover" alt=""/>` : avatarEl(me, 44)}</div>
+      <input type="file" accept="image/*" onchange="uploadPhoto(event)"/>
+    </div>
+    <div>
+      <div style="font-family:var(--font-s);font-size:1.05rem;font-weight:600;color:var(--light);letter-spacing:.05em">${me}</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:.15rem">${locked ? '<span style="color:var(--lime)">✓ Predictions locked in</span>' : 'Tap photo to upload one'}</div>
+    </div>
+  </div>`;
+
+  if (locked)                     h += `<div class="info-box" style="border-color:var(--lime);color:var(--lime)">Predictions locked in. Good luck! 🏆</div>`;
+  if (!gsOpen && !koOpen && !locked) h += `<div class="info-box">No prediction windows open yet. The admin will announce when picks open.</div>`;
+
+  // Phase 1 — Group Stage
+  if (gsOpen || Object.keys(preds).some(k => /^[A-Z]\d/.test(k))) {
+    h += `<div class="phase-hdr"><span>Phase 1 — Group Stage</span><span class="badge ${gsOpen?'badge-open':'badge-closed'}">${gsOpen?'Open':'Closed'}</span></div>`;
+    if (gsOpen) h += `<div class="info-box">Enter both score boxes for every match. If a team scores 0, type 0 manually.</div>`;
+    GROUPS.forEach(g => {
+      h += `<div style="margin-bottom:1rem"><div class="sec-label">Group ${g.g}</div>`;
+      g.matches.forEach(m => {
+        const pr  = preds[m.id] || {};
+        const dis = locked || !gsOpen;
+        h += `<div class="match-row">
+          <div>
+            <div class="match-teams">${m.h} vs ${m.a}</div>
+            <div class="match-sub">Group ${g.g}</div>
+          </div>
+          <div class="score-wrap">
+            <input type="number" min="0" max="20" value="${pr.sh!==undefined?pr.sh:''}" placeholder="0" id="sh_${m.id}" onchange="setScore('${m.id}',this.value,document.getElementById('sa_${m.id}').value)" ${dis?'disabled':''}/>
+            <span>–</span>
+            <input type="number" min="0" max="20" value="${pr.sa!==undefined?pr.sa:''}" placeholder="0" id="sa_${m.id}" onchange="setScore('${m.id}',document.getElementById('sh_${m.id}').value,this.value)" ${dis?'disabled':''}/>
+          </div>
+        </div>`;
+      });
+      h += '</div>';
+    });
+  }
+
+  // Phase 2 — Knockout
+  if (koOpen || Object.keys(preds).some(k => k.startsWith('ko_'))) {
+    h += `<div class="phase-hdr"><span>Phase 2 — Knockout</span><span class="badge ${koOpen?'badge-open':'badge-closed'}">${koOpen?'Open':'Closed'}</span></div>`;
+    KO_ROUNDS.forEach(r => {
+      const pr  = preds['ko_' + r.id] || {};
+      const dis = locked || !koOpen;
+      h += `<div class="match-row">
+        <div>
+          <div class="match-teams">${r.label}</div>
+          <div class="match-sub">${r.pts} pts correct winner</div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <label style="font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:.25rem;cursor:pointer">
+            <input type="checkbox" ${pr.et?'checked':''} onchange="setPred('ko_${r.id}','et',this.checked)" ${dis?'disabled':''} style="width:auto"/> +ET
+          </label>
+          <label style="font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:.25rem;cursor:pointer">
+            <input type="checkbox" ${pr.pen?'checked':''} onchange="setPred('ko_${r.id}','pen',this.checked)" ${dis?'disabled':''} style="width:auto"/> +PEN
+          </label>
+        </div>
+        <input placeholder="Winner" value="${pr.winner||''}" onchange="setPred('ko_${r.id}','winner',this.value)" ${dis?'disabled':''} style="width:115px"/>
+      </div>`;
+    });
+  }
+
+  // Action buttons
+  if (!locked && (gsOpen || koOpen)) {
+    h += `<div style="margin-top:1rem;display:flex;gap:.6rem;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="lockPreds()"><span><i class="ti ti-lock" aria-hidden="true"></i> Lock my predictions</span></button>
+      <button class="btn btn-ghost btn-sm" onclick="saveDraft()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Save draft</button>
+    </div>
+    <div style="font-size:.75rem;color:var(--muted);margin-top:.5rem;font-family:var(--font-b)">Once locked, only the admin can unlock your predictions.</div>`;
+  }
+
+  el.innerHTML = h;
+}
+
+// ── RULES ────────────────────────────────────────
+function renderRules() {
+  const p = pot();
+  document.getElementById('tab-rules').innerHTML = `
+  <div class="panel-title">Scoring Rules</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.6rem">
+    <div class="panel">
+      <div style="margin-bottom:.65rem">
+        <span class="badge badge-open">Phase 1</span>
+        <span style="font-family:var(--font-s);font-size:.8rem;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-left:.4rem">Group Stage</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:.4rem 0;font-size:.83rem;color:var(--light)">Correct result (1/X/2)</td><td style="text-align:right;font-family:var(--font-d);font-size:1rem;letter-spacing:.06em;color:var(--lime);padding:.4rem 0">2 pts</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:.4rem 0;font-size:.83rem;color:var(--light)">Exact score bonus</td><td style="text-align:right;font-family:var(--font-d);font-size:1rem;letter-spacing:.06em;color:var(--lime);padding:.4rem 0">+3 pts</td></tr>
+        <tr><td style="padding:.4rem 0;font-size:.75rem;color:var(--muted)">Total for exact score</td><td style="text-align:right;font-family:var(--font-d);font-size:.9rem;color:var(--muted);padding:.4rem 0">5 pts</td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <div style="margin-bottom:.65rem">
+        <span class="badge badge-pending">Phase 2</span>
+        <span style="font-family:var(--font-s);font-size:.8rem;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-left:.4rem">Knockout</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        ${KO_ROUNDS.map(r => `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.32rem 0;font-size:.82rem;color:var(--light)">${r.label}</td><td style="text-align:right;font-family:var(--font-d);font-size:1rem;letter-spacing:.06em;color:var(--lime);padding:.32rem 0">${r.pts} pts</td></tr>`).join('')}
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:.32rem 0;font-size:.82rem;color:var(--light)">Goes to extra time</td><td style="text-align:right;font-family:var(--font-d);font-size:1rem;color:var(--lime);padding:.32rem 0">+1 pt</td></tr>
+        <tr><td style="padding:.32rem 0;font-size:.82rem;color:var(--light)">Goes to penalties</td><td style="text-align:right;font-family:var(--font-d);font-size:1rem;color:var(--lime);padding:.32rem 0">+2 pts</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="panel">
+    <div style="font-family:var(--font-s);font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.65rem">
+      Prize Distribution · $${p} pot · updates as players join
+    </div>
+    <div class="prize-grid">
+      <div class="p-card g1"><div class="p-place">1ST</div><div class="p-amt">$${Math.round(p*.6)}</div><div class="p-pct">60% of pot</div></div>
+      <div class="p-card g2"><div class="p-place">2ND</div><div class="p-amt">$${Math.round(p*.3)}</div><div class="p-pct">30% of pot</div></div>
+      <div class="p-card g3"><div class="p-place">3RD</div><div class="p-amt">$${Math.round(p*.1)}</div><div class="p-pct">10% of pot</div></div>
+    </div>
+    <div style="font-size:.75rem;color:var(--muted);margin-top:.4rem;font-family:var(--font-b)">Tiebreaker: most exact scores → most correct knockout picks</div>
+  </div>`;
+}
+
+// ── ADMIN ────────────────────────────────────────
+function renderAdmin() {
+  const pending  = S.players.filter(p => p.status === 'pending');
+  const approved = S.players.filter(p => p.status === 'approved');
+  const p        = pot();
+
+  let h = `<div class="panel-title">Admin Panel</div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-val" style="color:var(--purple)">${approved.length}</div><div class="stat-lbl">Players</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--lime)">$${p}</div><div class="stat-lbl">Pot</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:${pending.length?'var(--red)':'var(--muted)'}">${pending.length}</div><div class="stat-lbl">Pending</div></div>
+  </div>`;
+
+  // Prediction windows
+  h += `<div class="panel"><div class="panel-title">Prediction Windows</div>`;
+  [{key:'gs', label:'Phase 1 — Group Stage', sub:'48 matches · open before kickoff'},
+   {key:'ko', label:'Phase 2 — Knockout',    sub:'Open after group stage ends'}
+  ].forEach(w => {
+    h += `<div class="win-card">
+      <div>
+        <div style="font-family:var(--font-s);font-size:.9rem;font-weight:600;color:var(--light)">${w.label}</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:.1rem">${w.sub}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <span class="badge ${S.windows[w.key]?'badge-open':'badge-closed'}">${S.windows[w.key]?'Open':'Closed'}</span>
+        <button class="btn ${S.windows[w.key]?'btn-ghost':'btn-lime'} btn-sm" onclick="toggleWindow('${w.key}')">${S.windows[w.key]?'Close':'Open'}</button>
+      </div>
+    </div>`;
+  });
+  h += '</div>';
+
+  // Join requests
+  h += `<div class="panel"><div class="panel-title">Join Requests${pending.length?`<span class="badge-count">${pending.length}</span>`:''}</div>`;
+  if (!pending.length) h += `<div class="empty" style="padding:.75rem">No pending requests</div>`;
+  else pending.forEach(pl => {
+    h += `<div class="p-row">
+      ${avatarEl(pl.name, 32)}
+      <div style="flex:1">
+        <div style="font-family:var(--font-s);font-size:.9rem;font-weight:600;color:var(--light)">${pl.name}</div>
+        <div style="font-size:.72rem;color:var(--muted)">Wants to join</div>
+      </div>
+      <div style="display:flex;gap:.35rem">
+        <button class="btn-approve" onclick="approvePlayer('${pl.name}')">✓ Approve</button>
+        <button class="btn-danger"  onclick="rejectPlayer('${pl.name}')">✕</button>
+      </div>
+    </div>`;
+  });
+  h += '</div>';
+
+  // Players list
+  h += `<div class="panel"><div class="panel-title">Players (${approved.length})</div>`;
+  if (!approved.length) h += `<div class="empty" style="padding:.75rem">No players yet</div>`;
+  else approved.forEach(pl => {
+    const lk = S.locked[pl.name];
+    h += `<div class="p-row">
+      ${avatarEl(pl.name, 32)}
+      <div style="flex:1">
+        <div style="font-family:var(--font-s);font-size:.9rem;font-weight:600;color:var(--light)">${pl.name}</div>
+        <div style="font-size:.72rem;color:var(--muted)">${pl.pts||0} pts · ${lk?'<span style="color:var(--lime)">Locked</span>':'Pending'}</div>
+      </div>
+      <div style="display:flex;gap:.35rem;align-items:center;flex-wrap:wrap">
+        <span style="font-size:.68rem;color:var(--muted);font-family:var(--font-b)">PIN: ${(S.pins||{})[pl.name]||'—'}</span>
+        <button class="btn btn-ghost btn-sm" onclick="resetPin('${pl.name}')">Reset PIN</button>
+        ${lk ? `<button class="btn btn-ghost btn-sm" onclick="unlockPlayer('${pl.name}')"><i class="ti ti-lock-open" aria-hidden="true"></i> Unlock</button>` : ''}
+        <button class="btn-danger" onclick="removePlayer('${pl.name}')"><i class="ti ti-trash" aria-hidden="true"></i></button>
+      </div>
+    </div>`;
+  });
+  h += '</div>';
+
+  // Result entry
+  h += `<div class="panel"><div class="panel-title">Enter Results</div>
+    <div class="info-box">Save scores to auto-calculate points for all players.</div>`;
+  GROUPS.forEach(g => {
+    h += `<div style="margin-bottom:1rem"><div class="sec-label">Group ${g.g}</div>`;
+    g.matches.forEach(m => {
+      const res = S.gRes[m.id] || {};
+      h += `<div class="match-row">
+        <div><div class="match-teams">${m.h} vs ${m.a}</div></div>
+        <div class="score-wrap">
+          <input type="number" min="0" max="20" value="${res.sh!==undefined?res.sh:''}" placeholder="0" id="rsh_${m.id}"/>
+          <span>–</span>
+          <input type="number" min="0" max="20" value="${res.sa!==undefined?res.sa:''}" placeholder="0" id="rsa_${m.id}"/>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="saveResult('${m.id}','${m.h}','${m.a}')">Save</button>
+      </div>`;
+    });
+    h += '</div>';
+  });
+  h += `<button class="btn btn-lime btn-sm" onclick="recalculateAll()" style="margin-top:.25rem"><span><i class="ti ti-refresh" aria-hidden="true"></i> Recalculate All Points</span></button></div>`;
+
+  document.getElementById('tab-admin').innerHTML = h;
+}
+
+// ── ADMIN ACTIONS ─────────────────────────────────
+async function toggleWindow(w) {
+  S.windows[w] = !S.windows[w];
+  await saveState();
+  updateTicker();
+  toast(`${w==='gs'?'Group stage':'Knockout'} ${S.windows[w]?'opened':'closed'}`);
+  renderAdmin();
+}
+async function approvePlayer(name) {
+  const pl = S.players.find(p => p.name === name);
+  if (pl) { pl.status = 'approved'; await saveState(); updateTicker(); toast(`${name} approved!`); renderAdmin(); }
+}
+async function rejectPlayer(name) {
+  S.players = S.players.filter(p => p.name !== name);
+  await saveState(); toast('Request rejected'); renderAdmin();
+}
+async function unlockPlayer(name) {
+  delete S.locked[name];
+  await saveState(); toast(`${name} unlocked`); renderAdmin();
+}
+async function resetPin(name) {
+  const p = prompt(`New 4-digit PIN for ${name}:`);
+  if (p === null) return;
+  if (!/^\d{4}$/.test(p)) { toast('PIN must be exactly 4 digits'); return; }
+  if (!S.pins) S.pins = {};
+  S.pins[name] = p;
+  await saveState(); toast(`PIN reset for ${name}`); renderAdmin();
+}
+async function removePlayer(name) {
+  if (!confirm(`Remove ${name} from the quiniela?`)) return;
+  S.players = S.players.filter(p => p.name !== name);
+  delete S.preds[name]; delete S.locked[name];
+  if (S.photos) delete S.photos[name];
+  if (S.pins)   delete S.pins[name];
+  await saveState(); updateTicker(); toast(`${name} removed`); renderAdmin(); renderLeaderboard();
+}
+async function saveResult(id, home, away) {
+  const shRaw = document.getElementById('rsh_' + id).value;
+  const saRaw = document.getElementById('rsa_' + id).value;
+  if (shRaw === '' || saRaw === '') { toast('Enter both scores'); return; }
+  const sh = parseInt(shRaw, 10);
+  const sa = parseInt(saRaw, 10);
+  if (isNaN(sh) || isNaN(sa)) { toast('Enter both scores'); return; }
+  S.gRes[id] = { sh, sa, r: sh > sa ? '1' : sh === sa ? 'X' : '2', h: home, a: away };
+  await saveState();
+  toast(`Saved: ${home} ${sh}–${sa} ${away}`);
+}
+async function recalculateAll() {
+  S.players.filter(p => p.status === 'approved').forEach(pl => {
+    let pts = 0, exact = 0;
+    const preds = S.preds[pl.name] || {};
+    Object.entries(S.gRes).forEach(([mid, res]) => {
+      const pr = preds[mid] || {};
+      if (pr.r && pr.r === res.r) {
+        pts += 2;
+        if (pr.sh !== undefined && pr.sa !== undefined &&
+            parseInt(pr.sh) === res.sh && parseInt(pr.sa) === res.sa) {
+          pts += 3; exact++;
+        }
+      }
+    });
+    pl.pts = pts; pl.exactScores = exact;
+  });
+  await saveState();
+  toast('Points recalculated!');
+  renderAdmin();
+  renderLeaderboard();
+}
+
+// ── INIT ─────────────────────────────────────────
+(async () => {
+  await loadState();
+  renderLandingPage();
+
+  document.getElementById('new-name').addEventListener('keydown', e => {
+    if (e.key === 'Enter') requestJoin();
+  });
+  document.getElementById('admin-pin').addEventListener('keydown', e => {
+    if (e.key === 'Enter') adminLogin();
+  });
+
+  showScreen('screen-landing');
+})();
+</script>
+
+</body>
+</html>
