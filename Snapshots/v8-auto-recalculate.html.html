@@ -229,7 +229,6 @@ input[type=checkbox]{accent-color:var(--lime);cursor:pointer}
 <div class="tabs" id="main-tabs" style="display:none">
   <button class="tab active" onclick="switchTab('leaderboard',this)">Standings</button>
   <button class="tab" onclick="switchTab('predictions',this)">My Picks</button>
-  <button class="tab" onclick="switchTab('picks',this)">Picks</button>
   <button class="tab" onclick="switchTab('rules',this)">Rules</button>
   <button class="tab" id="tab-admin-btn" onclick="switchTab('admin',this)" style="display:none">⚙ Admin</button>
 </div>
@@ -381,7 +380,6 @@ input[type=checkbox]{accent-color:var(--lime);cursor:pointer}
 <div class="screen" id="screen-app">
   <div id="tab-leaderboard" style="padding:1.25rem"></div>
   <div id="tab-predictions" style="padding:1.25rem;display:none"></div>
-  <div id="tab-picks" style="padding:1.25rem;display:none"></div>
   <div id="tab-rules" style="padding:1.25rem;display:none"></div>
   <div id="tab-admin" style="padding:1.25rem;display:none"></div>
 </div>
@@ -568,7 +566,6 @@ const KO_BRACKET = [
 let S = {};
 let me = null;
 let isAdmin = false;
-let viewingPlayer = null;  // Picks tab — currently selected player
 
 // ── STORAGE ──────────────────────────────────────
 // Uses window.storage (Claude artifact) when available, falls back to localStorage.
@@ -667,12 +664,11 @@ function updateTicker() {
 function switchTab(name, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  ['leaderboard','predictions','picks','rules','admin'].forEach(t => {
+  ['leaderboard','predictions','rules','admin'].forEach(t => {
     document.getElementById('tab-' + t).style.display = (t === name) ? 'block' : 'none';
   });
   if (name === 'leaderboard')  renderLeaderboard();
   if (name === 'predictions')  renderPredictions();
-  if (name === 'picks')        renderPicks();
   if (name === 'rules')        renderRules();
   if (name === 'admin')        renderAdmin();
 }
@@ -1023,173 +1019,6 @@ function renderPredictions() {
       <button class="btn btn-ghost btn-sm" onclick="saveDraft()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Save draft</button>
     </div>
     <div style="font-size:.75rem;color:var(--muted);margin-top:.5rem;font-family:var(--font-b)">Once locked, only the admin can unlock your predictions.</div>`;
-  }
-
-  el.innerHTML = h;
-}
-
-// ── PICKS (read-only public view) ────────────────
-function selectViewPlayer(name) {
-  viewingPlayer = name;
-  renderPicks();
-}
-function calcGSBadge(pr, res) {
-  // Returns points earned for a GS pick vs a result, or 0 if none.
-  // Display-only — does not affect scoring.
-  if (!res || !pr.r) return 0;
-  if (pr.r !== res.r) return 0;
-  if (pr.sh !== undefined && pr.sa !== undefined &&
-      parseInt(pr.sh) === res.sh && parseInt(pr.sa) === res.sa) return 5;
-  return 2;
-}
-function calcKOBadge(pr, km, matchPts) {
-  // Returns points earned for a KO pick vs a result, or 0 if none.
-  // Display-only — does not affect scoring.
-  if (!km || !km.winner || !pr || !pr.winner) return 0;
-  if (pr.winner !== km.winner) return 0;
-  let pts = matchPts;
-  if (pr.et  && km.et)  pts += 1;
-  if (pr.pen && km.pen) pts += 2;
-  return pts;
-}
-function ptsBadge(pts) {
-  // Returns a lime badge HTML string for pts > 0, empty string otherwise.
-  if (!pts) return '';
-  return `<span class="badge badge-open" style="font-family:var(--font-d);font-size:.75rem;letter-spacing:.04em">+${pts}</span>`;
-}
-function renderPicks() {
-  const el       = document.getElementById('tab-picks');
-  const approved = S.players.filter(p => p.status === 'approved');
-  const gsOpen   = S.windows.gs;
-  const koOpen   = S.windows.ko;
-  // Access: admin sees all; players see GS picks only after GS closes,
-  //         KO picks only after KO closes.
-  const canSeeGS = isAdmin || !gsOpen;
-  const canSeeKO = isAdmin || !koOpen;
-
-  if (!approved.length) {
-    el.innerHTML = `<div class="empty">No approved players yet.</div>`;
-    return;
-  }
-
-  // Player selector
-  let h = `<div class="sec-label" style="margin-bottom:.5rem">Select a player</div>
-  <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem">`;
-  approved.forEach(p => {
-    const active = p.name === viewingPlayer;
-    h += `<button class="btn btn-sm ${active ? 'btn-primary' : 'btn-ghost'}"
-      onclick="selectViewPlayer('${p.name}')"
-      style="font-size:.78rem">${avatarEl(p.name, 20)} <span style="margin-left:.3rem">${p.name}</span></button>`;
-  });
-  h += `</div>`;
-
-  // Nothing selected yet
-  if (!viewingPlayer) {
-    el.innerHTML = h + `<div class="empty">Choose a player above to view their picks.</div>`;
-    return;
-  }
-
-  // Validate selected player still exists
-  const player = approved.find(p => p.name === viewingPlayer);
-  if (!player) {
-    viewingPlayer = null;
-    el.innerHTML = h + `<div class="empty">Player not found.</div>`;
-    return;
-  }
-
-  const preds  = (S.preds[viewingPlayer]) || {};
-  const locked = S.locked[viewingPlayer];
-  h += `<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;padding:.75rem 1rem;background:var(--dark2);border:1px solid var(--border);border-radius:2px">
-    ${avatarEl(viewingPlayer, 36)}
-    <div>
-      <div style="font-family:var(--font-s);font-size:1rem;font-weight:600;color:var(--light)">${viewingPlayer}</div>
-      <div style="font-size:.75rem;color:var(--muted);margin-top:.1rem">${locked
-        ? '<span style="color:var(--lime)">✓ Predictions locked in</span>'
-        : '<span style="color:var(--muted)">Predictions not locked</span>'}</div>
-    </div>
-  </div>`;
-
-  // ── Phase 1 — Group Stage ──────────────────────
-  h += `<div class="phase-hdr"><span>Phase 1 — Group Stage</span>
-    <span class="badge ${gsOpen ? 'badge-open' : 'badge-closed'}">${gsOpen ? 'Open' : 'Closed'}</span></div>`;
-  if (!canSeeGS) {
-    h += `<div class="info-box">Group stage picks are revealed once the prediction window closes.</div>`;
-  } else {
-    const hasPreds = GROUPS.some(g => g.matches.some(m => preds[m.id]));
-    if (!hasPreds) {
-      h += `<div class="empty" style="padding:1rem">No group stage picks submitted.</div>`;
-    } else {
-      GROUPS.forEach(g => {
-        h += `<div style="margin-bottom:1rem"><div class="sec-label">Group ${g.g}</div>`;
-        g.matches.forEach(m => {
-          const pr  = preds[m.id] || {};
-          const res = S.gRes[m.id] || null;
-          const hasScore = pr.sh !== undefined && pr.sa !== undefined;
-          const gsPts = calcGSBadge(pr, res);
-          h += `<div class="match-row">
-            <div>
-              <div class="match-teams">${m.h} vs ${m.a}</div>
-              <div class="match-sub">${m.date} · ${m.city}</div>
-            </div>
-            <div class="score-wrap">
-              <input type="number" value="${hasScore ? pr.sh : ''}" placeholder="–" disabled style="width:32px;text-align:center;padding:.28rem .2rem;font-size:.85rem"/>
-              <span>–</span>
-              <input type="number" value="${hasScore ? pr.sa : ''}" placeholder="–" disabled style="width:32px;text-align:center;padding:.28rem .2rem;font-size:.85rem"/>
-            </div>
-            <div style="display:flex;align-items:center;gap:.4rem">
-              <span style="font-family:var(--font-s);font-size:.82rem;font-weight:600;
-                color:${pr.r === '1' ? 'var(--light)' : pr.r === 'X' ? 'var(--muted)' : pr.r === '2' ? 'var(--muted)' : 'var(--border2)'}">
-                ${pr.r || '–'}
-              </span>
-              ${ptsBadge(gsPts)}
-            </div>
-          </div>`;
-        });
-        h += `</div>`;
-      });
-    }
-  }
-
-  // ── Phase 2 — Knockout ─────────────────────────
-  const roundOrder  = ['r32','r16','qf','sf','tp','fin'];
-  const roundLabels = { r32:'Round of 32', r16:'Round of 16', qf:'Quarterfinals',
-                        sf:'Semifinals', tp:'3rd Place Match', fin:'Final' };
-  h += `<div class="phase-hdr" style="margin-top:.75rem"><span>Phase 2 — Knockout</span>
-    <span class="badge ${koOpen ? 'badge-open' : 'badge-closed'}">${koOpen ? 'Open' : 'Closed'}</span></div>`;
-  if (!canSeeKO) {
-    h += `<div class="info-box">Knockout picks are revealed once the knockout prediction window closes.</div>`;
-  } else {
-    const hasKOPreds = KO_BRACKET.some(m => preds['ko_' + m.id]);
-    if (!hasKOPreds) {
-      h += `<div class="empty" style="padding:1rem">No knockout picks submitted.</div>`;
-    } else {
-      roundOrder.forEach(round => {
-        const roundMatches = KO_BRACKET.filter(m => m.round === round);
-        const pts = roundMatches[0].pts;
-        h += `<div style="margin-bottom:1rem"><div class="sec-label">${roundLabels[round]} · ${pts} pts</div>`;
-        roundMatches.forEach(m => {
-          const pr     = preds['ko_' + m.id] || {};
-          const km     = (S.koMatches || {})[m.id] || {};
-          const t1     = km.t1 || m.t1Label;
-          const t2     = km.t2 || m.t2Label;
-          const picked = pr.winner ? pr.winner : null;
-          const koPts  = calcKOBadge(pr, km, m.pts);
-          h += `<div class="match-row">
-            <div>
-              <div class="match-teams">${t1} vs ${t2}</div>
-              <div class="match-sub">${m.id}</div>
-            </div>
-            <div style="font-family:var(--font-s);font-size:.82rem;font-weight:600;
-              color:${picked ? 'var(--light)' : 'var(--border2)'}">
-              ${picked || '–'}
-              ${pr.et ? '<span style="font-size:.7rem;color:var(--muted)"> +ET</span>' : pr.pen ? '<span style="font-size:.7rem;color:var(--muted)"> +PEN</span>' : ''}
-            </div>
-            ${ptsBadge(koPts)}
-          </div>`;
-        });
-        h += `</div>`;
-      });
-    }
   }
 
   el.innerHTML = h;
