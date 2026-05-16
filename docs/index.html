@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@600&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -408,6 +409,11 @@ input[type=checkbox]{accent-color:var(--lime);cursor:pointer}
      JAVASCRIPT
 ═══════════════════════════════════════════════ -->
 <script>
+// ── SUPABASE ─────────────────────────────────────
+const SUPABASE_URL = 'https://cghmdncyrhfeoldoojsb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__oIxY6Bil7Dhva7QcSfpdg_5FYQN0h1';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 // ── CONFIG ──────────────────────────────────────
 const ADMIN_PIN = '1624';
 const BUY_IN    = 50;
@@ -597,13 +603,31 @@ function hasArtifactStorage() {
 async function loadState() {
   try {
     if (hasArtifactStorage()) {
+      // Priority 1: Claude artifact storage
       const r = await window.storage.get(STORAGE_KEY, true);
       S = (r && r.value) ? JSON.parse(r.value) : freshState();
     } else {
+      // Priority 2: Supabase
+      const { data, error } = await sb
+        .from('lrc_state')
+        .select('value')
+        .eq('key', STORAGE_KEY)
+        .single();
+      if (!error && data && data.value) {
+        S = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
+      } else {
+        // Priority 3: localStorage fallback
+        const raw = localStorage.getItem(STORAGE_KEY);
+        S = raw ? JSON.parse(raw) : freshState();
+      }
+    }
+  } catch(e) {
+    // Final fallback
+    try {
       const raw = localStorage.getItem(STORAGE_KEY);
       S = raw ? JSON.parse(raw) : freshState();
-    }
-  } catch(e) { S = freshState(); }
+    } catch(e2) { S = freshState(); }
+  }
   normalizeState();
 }
 // Fills in any keys missing from older saved state.
@@ -631,13 +655,30 @@ function normalizeState() {
 async function saveState() {
   const json = JSON.stringify(S);
   if (hasArtifactStorage()) {
+    // Priority 1: Claude artifact storage
     try {
       await window.storage.set(STORAGE_KEY, json, true);
       return;
     } catch(e) {
-      console.warn('window.storage.set failed, falling back to localStorage:', e);
+      console.warn('window.storage.set failed, trying Supabase:', e);
     }
   }
+  // Priority 2: Supabase
+  try {
+    const { error } = await sb
+      .from('lrc_state')
+      .upsert({ key: STORAGE_KEY, value: S, updated_at: new Date().toISOString() },
+               { onConflict: 'key' });
+    if (!error) {
+      // Mirror to localStorage as offline cache
+      try { localStorage.setItem(STORAGE_KEY, json); } catch(_) {}
+      return;
+    }
+    console.warn('Supabase save failed:', error);
+  } catch(e) {
+    console.warn('Supabase unreachable:', e);
+  }
+  // Priority 3: localStorage fallback
   try {
     localStorage.setItem(STORAGE_KEY, json);
   } catch(e) {
