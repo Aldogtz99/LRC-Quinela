@@ -672,7 +672,7 @@ async function saveState() {
     if (!error) {
       // Mirror to localStorage as offline cache
       try { localStorage.setItem(STORAGE_KEY, json); } catch(_) {}
-      return;
+      return { ok: true, source: 'supabase' };
     }
     console.warn('Supabase save failed:', error);
   } catch(e) {
@@ -681,8 +681,10 @@ async function saveState() {
   // Priority 3: localStorage fallback
   try {
     localStorage.setItem(STORAGE_KEY, json);
+    return { ok: true, source: 'localStorage' };
   } catch(e) {
     console.error('localStorage save also failed:', e);
+    return { ok: false, error: e };
   }
 }
 function freshState() {
@@ -795,13 +797,40 @@ async function requestJoin() {
   const pin   = pinEl.value.trim();
   if (!name) { toast('Enter your name'); return; }
   if (!/^\d{4}$/.test(pin)) { toast('PIN must be exactly 4 digits'); return; }
-  if (S.players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+
+  // Refresh state from Supabase before checking duplicates
+  // so we never compare against a stale in-memory list.
+  await loadState();
+
+  const nameLower = name.toLowerCase();
+  const duplicate = S.players.find(p => p.name.trim().toLowerCase() === nameLower);
+  if (duplicate) {
+    console.log('[join] duplicate found:', duplicate);
     toast('Name taken — pick yourself from the list'); return;
   }
+
+  // Build new player record
+  const newPlayer = { name, status: 'pending', pts: 0, exactScores: 0 };
   if (!S.pins) S.pins = {};
   S.pins[name] = pin;
-  S.players.push({ name, status:'pending', pts:0, exactScores:0 });
-  await saveState();
+  S.players.push(newPlayer);
+
+  console.log('[join] inserting player:', newPlayer);
+  console.log('[join] full S.players before save:', JSON.stringify(S.players));
+
+  const saved = await saveState();
+  console.log('[join] saveState result:', saved);
+
+  // Verify the player actually made it into persisted state
+  await loadState();
+  const confirmed = S.players.find(p => p.name.trim().toLowerCase() === nameLower);
+  console.log('[join] post-save verification:', confirmed);
+
+  if (!confirmed) {
+    toast('Something went wrong saving your request. Please try again.');
+    return;
+  }
+
   el.value = ''; pinEl.value = '';
   updateTicker();
   toast('Request sent!');
@@ -1383,7 +1412,8 @@ function renderRules() {
 
 // ── ADMIN ────────────────────────────────────────
 function renderAdmin() {
-  const pending  = S.players.filter(p => p.status === 'pending');
+  // DEBUG: show all non-approved players to catch any status mismatches
+  const pending  = S.players.filter(p => p.status !== 'approved');
   const approved = S.players.filter(p => p.status === 'approved');
   const p        = pot();
 
