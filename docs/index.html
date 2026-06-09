@@ -807,6 +807,7 @@ async function requestJoin(btn) {
   const duplicate = S.players.find(p => p.name.trim().toLowerCase() === nameLower);
   if (duplicate) {
     console.log('[join] duplicate found:', duplicate);
+    if (btn) { btn.disabled = false; btn.textContent = 'Request'; }
     toast('Name taken — pick yourself from the list'); return;
   }
 
@@ -828,6 +829,7 @@ async function requestJoin(btn) {
   console.log('[join] post-save verification:', confirmed);
 
   if (!confirmed) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Request'; }
     toast('Something went wrong saving your request. Please try again.');
     return;
   }
@@ -1115,7 +1117,7 @@ async function saveDraft(btn) {
     console.error('[saveDraft] error:', e);
     toast('Save failed — please try again');
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Save draft'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-device-floppy" aria-hidden="true"></i> Save draft'; }
   }
 }
 async function lockPreds(btn) {
@@ -1142,9 +1144,12 @@ async function lockPreds(btn) {
   const msg = picked < Math.ceil(total / 2)
     ? `You've only picked ${picked} of ${total} matches. Lock anyway? (Only the admin can unlock)`
     : 'Lock in your predictions? Only the admin can unlock them.';
-  if (!confirm(msg)) return;
-
+  // Disable button before confirm so it reacts immediately on click
   if (btn) { btn.disabled = true; btn.querySelector('span') ? btn.querySelector('span').textContent = 'Submitting…' : btn.textContent = 'Submitting…'; }
+  if (!confirm(msg)) {
+    if (btn) { btn.disabled = false; btn.querySelector('span') ? btn.querySelector('span').textContent = 'Lock my predictions' : btn.textContent = 'Lock my predictions'; }
+    return;
+  }
   try {
     const myPreds = S.preds[me] ? JSON.parse(JSON.stringify(S.preds[me])) : {};
     const myPin   = S.pins && S.pins[me];
@@ -1798,7 +1803,21 @@ function setKoAdminField(matchId, field, value) {
   // ET and PEN mutually exclusive
   if (field === 'et'  && value === true) S.koMatches[matchId].pen = false;
   if (field === 'pen' && value === true) S.koMatches[matchId].et  = false;
-  renderAdmin();
+  // Update winner buttons in-place — do NOT re-render the whole admin tab
+  if (field === 'winner') {
+    const km = S.koMatches[matchId];
+    document.querySelectorAll(`[onclick*="setKoAdminField('${matchId}','winner',"]`).forEach(btn => {
+      const onc = btn.getAttribute('onclick') || '';
+      const m = onc.match(/setKoAdminField\('[^']+','winner','([^']*)'\)/);
+      if (m) btn.classList.toggle('sel', km.winner === m[1]);
+    });
+  }
+  // ET/PEN: sync checkboxes in-place
+  if (field === 'et' || field === 'pen') {
+    const km = S.koMatches[matchId];
+    document.querySelectorAll(`[onchange*="setKoAdminField('${matchId}','et',"]`).forEach(cb => { cb.checked = !!km.et; });
+    document.querySelectorAll(`[onchange*="setKoAdminField('${matchId}','pen',"]`).forEach(cb => { cb.checked = !!km.pen; });
+  }
 }
 function propagateKoWinner(matchId) {
   const match   = KO_BRACKET.find(m => m.id === matchId);
