@@ -419,6 +419,31 @@ const ADMIN_PIN = '1624';
 const BUY_IN    = 50;
 const STORAGE_KEY = 'lrc_q_v7';
 
+// ── FLAG MAP — 3-letter team code → 2-letter ISO for flagcdn.com ────
+const FLAG_ISO = {
+  MEX:'mx', KOR:'kr', ZAF:'za', CZE:'cz',
+  CAN:'ca', BIH:'ba', QAT:'qa', SUI:'ch',
+  BRA:'br', MAR:'ma', HAI:'ht', SCO:'gb-sct',
+  USA:'us', PAR:'py', AUS:'au', TUR:'tr',
+  GER:'de', CUW:'cw', CIV:'ci', ECU:'ec',
+  NED:'nl', JPN:'jp', SWE:'se', TUN:'tn',
+  BEL:'be', EGY:'eg', IRN:'ir', NZL:'nz',
+  ESP:'es', CPV:'cv', KSA:'sa', URU:'uy',
+  FRA:'fr', SEN:'sn', IRQ:'iq', NOR:'no',
+  ARG:'ar', ALG:'dz', AUT:'at', JOR:'jo',
+  POR:'pt', CGO:'cd', UZB:'uz', COL:'co',
+  ENG:'gb-eng', CRO:'hr', GHA:'gh', PAN:'pa',
+};
+// Returns flag img + team code span. Falls back to plain code if no mapping.
+function tf(code) {
+  if (!code) return '';
+  const iso = FLAG_ISO[code.toUpperCase()];
+  const img = iso
+    ? `<img src="https://flagcdn.com/20x15/${iso}.png" width="20" height="15" alt="${code}" style="border-radius:2px;vertical-align:middle;margin-right:3px;flex-shrink:0">`
+    : '';
+  return `<span style="display:inline-flex;align-items:center;gap:0;white-space:nowrap">${img}<span>${code}</span></span>`;
+}
+
 // ── AVATAR COLORS (assigned in approval order) ──
 const AV_COLORS = [
   ['#5A1BFF','#fff'],['#E31E24','#fff'],['#2a8a00','#fff'],['#1A4B9B','#fff'],
@@ -1225,7 +1250,7 @@ function renderPredictions() {
         const dis = locked || !gsOpen;
         h += `<div class="match-row">
           <div>
-            <div class="match-teams">${m.h} vs ${m.a}</div>
+            <div class="match-teams">${tf(m.h)} vs ${tf(m.a)}</div>
             <div class="match-sub">Group ${g.g} · ${m.date} · ${m.time} CT</div>
           </div>
           <div class="score-wrap">
@@ -1263,7 +1288,7 @@ function renderPredictions() {
         const t2Label = t2 || m.t2Label;
         h += `<div class="match-row" style="${!teamsKnown ? 'opacity:.45' : ''}">
           <div>
-            <div class="match-teams">${t1Label} vs ${t2Label}</div>
+            <div class="match-teams">${tf(t1)||t1Label} vs ${tf(t2)||t2Label}</div>
             <div class="match-sub">${teamsKnown ? m.id : 'Teams TBD'}</div>
           </div>
           <div style="display:flex;gap:.35rem;align-items:center;flex-wrap:wrap">
@@ -1402,7 +1427,7 @@ function renderPicks() {
           const gsPts = calcGSBadge(pr, res);
           h += `<div class="match-row">
             <div>
-              <div class="match-teams">${m.h} vs ${m.a}</div>
+              <div class="match-teams">${tf(m.h)} vs ${tf(m.a)}</div>
               <div class="match-sub">${m.date} · ${m.time} CT · ${m.city}</div>
             </div>
             <div class="score-wrap">
@@ -1450,7 +1475,7 @@ function renderPicks() {
           const koPts  = calcKOBadge(pr, km, m.pts);
           h += `<div class="match-row">
             <div>
-              <div class="match-teams">${t1} vs ${t2}</div>
+              <div class="match-teams">${tf(t1)||t1} vs ${tf(t2)||t2}</div>
               <div class="match-sub">${m.id}</div>
             </div>
             <div style="font-family:var(--font-s);font-size:.82rem;font-weight:600;
@@ -1608,7 +1633,7 @@ function renderAdmin() {
     g.matches.forEach(m => {
       const res = S.gRes[m.id] || {};
       h += `<div class="match-row">
-        <div><div class="match-teams">${m.h} vs ${m.a}</div><div class="match-sub">${m.date} · ${m.time} CT</div></div>
+        <div><div class="match-teams">${tf(m.h)} vs ${tf(m.a)}</div><div class="match-sub">${m.date} · ${m.time} CT</div></div>
         <div class="score-wrap">
           <input type="number" min="0" max="20" value="${res.sh!==undefined?res.sh:''}" placeholder="0" id="rsh_${m.id}"/>
           <span>–</span>
@@ -1632,7 +1657,7 @@ function renderAdmin() {
       <div style="flex:1;min-width:0">
         <div class="match-sub" style="margin-bottom:.25rem">${m.id} · ${m.t1Label} vs ${m.t2Label}</div>
         ${assigned
-          ? `<div class="match-teams">${km.t1} vs ${km.t2}</div>`
+          ? `<div class="match-teams">${tf(km.t1)} vs ${tf(km.t2)}</div>`
           : `<div style="display:flex;gap:.35rem;align-items:center;flex-wrap:wrap">
                <input type="text" id="kt1_${m.id}" value="${km.t1||''}" placeholder="${m.t1Label.slice(0,6)}" maxlength="3"
                  style="width:54px;text-transform:uppercase;padding:.28rem .4rem;font-size:.85rem"
@@ -1669,7 +1694,7 @@ function renderAdmin() {
       const ready = t1 && t2;
       h += `<div class="match-row" style="${!ready?'opacity:.4':''}">
         <div style="min-width:80px">
-          <div class="match-teams" style="font-size:.85rem">${t1||m.t1Label} vs ${t2||m.t2Label}</div>
+          <div class="match-teams" style="font-size:.85rem">${tf(t1)||t1||m.t1Label} vs ${tf(t2)||t2||m.t2Label}</div>
           <div class="match-sub">${m.id}</div>
         </div>
         <div style="display:flex;gap:.3rem;align-items:center;flex-wrap:wrap">
