@@ -352,7 +352,7 @@ input[type=checkbox]{accent-color:var(--lime);cursor:pointer}
       <div style="display:flex;flex-direction:column;gap:.5rem">
         <input type="text" id="new-name" placeholder="Your name" maxlength="24"/>
         <input type="password" id="new-pin" placeholder="Choose a 4-digit PIN" maxlength="4" inputmode="numeric"/>
-        <button class="btn btn-lime btn-sm" onclick="requestJoin()" style="align-self:flex-start">Request</button>
+        <button class="btn btn-lime btn-sm" onclick="requestJoin(this)" style="align-self:flex-start">Request</button>
       </div>
     </div>
   </div>
@@ -790,13 +790,14 @@ function selectPlayer(name) {
   sessionStorage.setItem('lrc_session', JSON.stringify({me:name, isAdmin:false}));
   enterApp(false);
 }
-async function requestJoin() {
+async function requestJoin(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
   const el    = document.getElementById('new-name');
   const pinEl = document.getElementById('new-pin');
   const name  = el.value.trim();
   const pin   = pinEl.value.trim();
-  if (!name) { toast('Enter your name'); return; }
-  if (!/^\d{4}$/.test(pin)) { toast('PIN must be exactly 4 digits'); return; }
+  if (!name) { if (btn) { btn.disabled=false; btn.textContent='Request'; } toast('Enter your name'); return; }
+  if (!/^\d{4}$/.test(pin)) { if (btn) { btn.disabled=false; btn.textContent='Request'; } toast('PIN must be exactly 4 digits'); return; }
 
   // Refresh state from Supabase before checking duplicates
   // so we never compare against a stale in-memory list.
@@ -832,6 +833,7 @@ async function requestJoin() {
   }
 
   el.value = ''; pinEl.value = '';
+  if (btn) { btn.disabled = false; btn.textContent = 'Request'; }
   updateTicker();
   toast('Request sent!');
   showScreen('screen-pending');
@@ -1038,42 +1040,136 @@ function setPred(matchId, field, value) {
 }
 function setScore(matchId, shVal, saVal) {
   if (!S.preds[me]) S.preds[me] = {};
-  if (shVal === '' || saVal === '') {
-    // either field cleared — remove prediction for this match
+
+  const shStr = String(shVal).trim();
+  const saStr = String(saVal).trim();
+
+  console.log(`[setScore] ${matchId} | home="${shStr}" away="${saStr}"`);
+
+  // Both blank — user cleared the row entirely
+  if (shStr === '' && saStr === '') {
+    console.log(`[setScore] ${matchId} — both blank, deleting pick`);
     delete S.preds[me][matchId];
     return;
   }
-  const sh = parseInt(shVal, 10);
-  const sa = parseInt(saVal, 10);
-  if (isNaN(sh) || isNaN(sa)) { delete S.preds[me][matchId]; return; }
+
+  // Only one field filled — store partial state without deriving r
+  // This prevents a mid-entry cross-read from wiping the whole pick
+  if (shStr === '' || saStr === '') {
+    console.log(`[setScore] ${matchId} — partial entry, storing without result`);
+    if (!S.preds[me][matchId]) S.preds[me][matchId] = {};
+    if (shStr !== '') S.preds[me][matchId].sh = parseInt(shStr, 10);
+    if (saStr !== '') S.preds[me][matchId].sa = parseInt(saStr, 10);
+    delete S.preds[me][matchId].r; // no result until both filled
+    return;
+  }
+
+  const sh = parseInt(shStr, 10);
+  const sa = parseInt(saStr, 10);
+
+  if (isNaN(sh) || isNaN(sa)) {
+    console.warn(`[setScore] ${matchId} — NaN after parse, ignoring`);
+    return;
+  }
+
   const r = sh > sa ? '1' : sh === sa ? 'X' : '2';
+  console.log(`[setScore] ${matchId} — saving ${sh}-${sa} r=${r}`);
   S.preds[me][matchId] = { sh, sa, r };
 }
 function setKoPred(matchId, field, value) {
   if (!S.preds[me])          S.preds[me]          = {};
   if (!S.preds[me][matchId]) S.preds[me][matchId] = {};
   S.preds[me][matchId][field] = value;
-  // ET and PEN are mutually exclusive — selecting one clears the other
+  // ET and PEN are mutually exclusive
   if (field === 'et'  && value === true) S.preds[me][matchId].pen = false;
   if (field === 'pen' && value === true) S.preds[me][matchId].et  = false;
-  // Re-render so winner button sel state and checkbox states update immediately
-  renderPredictions();
+  // Update KO winner button sel classes in-place — do NOT call renderPredictions()
+  // because that would rebuild the entire tab from S, wiping any unsaved GS inputs.
+  const pr = S.preds[me][matchId];
+  const km = (S.koMatches || {})[matchId.replace('ko_','')] || {};
+  if (field === 'winner') {
+    ['t1','t2'].forEach(slot => {
+      const team = km[slot];
+      if (!team) return;
+      // Find buttons in the KO section matching this team
+      document.querySelectorAll(`[onclick*="setKoPred('${matchId}','winner','${team}')"]`).forEach(btn => {
+        btn.classList.toggle('sel', pr.winner === team);
+      });
+    });
+  }
 }
-async function saveDraft()  { await saveState(); toast('Draft saved!'); }
-async function lockPreds() {
-  const preds   = S.preds[me] || {};
-  const total   = GROUPS.reduce((n, g) => n + g.matches.length, 0);
-  const picked  = GROUPS.reduce((n, g) => n + g.matches.filter(m => preds[m.id] && preds[m.id].r).length, 0);
+async function saveDraft(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+  try {
+    // Load latest state, merge only this player's picks, then save
+    const myPreds = S.preds[me] ? JSON.parse(JSON.stringify(S.preds[me])) : {};
+    const myPin   = S.pins && S.pins[me];
+    await loadState();
+    if (!S.preds) S.preds = {};
+    S.preds[me] = myPreds;
+    if (myPin && S.pins) S.pins[me] = myPin;
+    console.log('[saveDraft] saving picks for', me, ':', JSON.stringify(myPreds));
+    await saveState();
+    toast('Draft saved!');
+  } catch(e) {
+    console.error('[saveDraft] error:', e);
+    toast('Save failed — please try again');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save draft'; }
+  }
+}
+async function lockPreds(btn) {
+  const preds = S.preds[me] || {};
+  const total = GROUPS.reduce((n, g) => n + g.matches.length, 0);
+  const picked = GROUPS.reduce((n, g) => n + g.matches.filter(m => preds[m.id] && preds[m.id].r).length, 0);
   if (picked === 0) { toast('Make at least one pick before locking!'); return; }
+
+  // Priority A: validate no score was saved as NaN or non-integer
+  const badPicks = [];
+  GROUPS.forEach(g => g.matches.forEach(m => {
+    const pr = preds[m.id];
+    if (!pr) return;
+    const shOk = pr.sh !== undefined && pr.sh !== null && pr.sh !== '' && !isNaN(parseInt(pr.sh, 10));
+    const saOk = pr.sa !== undefined && pr.sa !== null && pr.sa !== '' && !isNaN(parseInt(pr.sa, 10));
+    if (!shOk || !saOk) badPicks.push(m.id);
+  }));
+  if (badPicks.length) {
+    toast(`Fix incomplete scores before locking: ${badPicks.slice(0,3).join(', ')}${badPicks.length > 3 ? '…' : ''}`);
+    console.warn('[lock] bad picks detected:', badPicks);
+    return;
+  }
+
   const msg = picked < Math.ceil(total / 2)
     ? `You've only picked ${picked} of ${total} matches. Lock anyway? (Only the admin can unlock)`
     : 'Lock in your predictions? Only the admin can unlock them.';
   if (!confirm(msg)) return;
-  S.locked[me] = true;
-  await saveState();
-  toast('Locked! 🔒');
-  renderPredictions();
-  renderLeaderboard();
+
+  if (btn) { btn.disabled = true; btn.querySelector('span') ? btn.querySelector('span').textContent = 'Submitting…' : btn.textContent = 'Submitting…'; }
+  try {
+    const myPreds = S.preds[me] ? JSON.parse(JSON.stringify(S.preds[me])) : {};
+    const myPin   = S.pins && S.pins[me];
+    await loadState();
+    if (!S.preds) S.preds = {};
+    S.preds[me] = myPreds;
+    if (myPin && S.pins) S.pins[me] = myPin;
+    S.locked[me] = true;
+    console.log('[lock] locking picks for', me, ':', JSON.stringify(myPreds));
+    await saveState();
+    // Verify lock persisted
+    await loadState();
+    if (!S.locked[me]) {
+      toast('Lock may not have saved — please try again');
+      return;
+    }
+    toast('Locked! 🔒');
+    renderPredictions();
+    renderLeaderboard();
+  } catch(e) {
+    console.error('[lock] error:', e);
+    toast('Lock failed — please try again');
+  } finally {
+    if (btn) { btn.disabled = false; btn.querySelector('span') ? btn.querySelector('span').textContent = 'Lock my predictions' : btn.textContent = 'Lock my predictions'; }
+  }
 }
 async function uploadPhoto(e) {
   const file = e.target.files[0];
@@ -1192,8 +1288,8 @@ function renderPredictions() {
   // Action buttons
   if (!locked && (gsOpen || koOpen)) {
     h += `<div style="margin-top:1rem;display:flex;gap:.6rem;flex-wrap:wrap">
-      <button class="btn btn-primary" onclick="lockPreds()"><span><i class="ti ti-lock" aria-hidden="true"></i> Lock my predictions</span></button>
-      <button class="btn btn-ghost btn-sm" onclick="saveDraft()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Save draft</button>
+      <button class="btn btn-primary" onclick="lockPreds(this)"><span><i class="ti ti-lock" aria-hidden="true"></i> Lock my predictions</span></button>
+      <button class="btn btn-ghost btn-sm" onclick="saveDraft(this)"><i class="ti ti-device-floppy" aria-hidden="true"></i> Save draft</button>
     </div>
     <div style="font-size:.75rem;color:var(--muted);margin-top:.5rem;font-family:var(--font-b)">Once locked, only the admin can unlock your predictions.</div>`;
   }
@@ -1471,8 +1567,8 @@ function renderAdmin() {
         <div style="font-size:.72rem;color:var(--muted)">Wants to join</div>
       </div>
       <div style="display:flex;gap:.35rem">
-        <button class="btn-approve" onclick="approvePlayer('${pl.name}')">✓ Approve</button>
-        <button class="btn-danger"  onclick="rejectPlayer('${pl.name}')">✕</button>
+        <button class="btn-approve" onclick="approvePlayer('${pl.name}',this)">✓ Approve</button>
+        <button class="btn-danger"  onclick="rejectPlayer('${pl.name}',this)">✕</button>
       </div>
     </div>`;
   });
@@ -1608,13 +1704,36 @@ async function toggleWindow(w) {
   toast(`${w==='gs'?'Group stage':'Knockout'} ${S.windows[w]?'opened':'closed'}`);
   renderAdmin();
 }
-async function approvePlayer(name) {
-  const pl = S.players.find(p => p.name === name);
-  if (pl) { pl.status = 'approved'; await saveState(); updateTicker(); toast(`${name} approved!`); renderAdmin(); }
+async function approvePlayer(name, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Approving…'; }
+  try {
+    await loadState();
+    const pl = S.players.find(p => p.name === name);
+    if (!pl) { toast('Player not found — refresh and try again'); return; }
+    pl.status = 'approved';
+    await saveState();
+    updateTicker();
+    toast(`${name} approved!`);
+    renderAdmin();
+  } catch(e) {
+    console.error('[approve] error:', e);
+    toast('Approval failed — please try again');
+    if (btn) { btn.disabled = false; btn.textContent = '✓ Approve'; }
+  }
 }
-async function rejectPlayer(name) {
-  S.players = S.players.filter(p => p.name !== name);
-  await saveState(); toast('Request rejected'); renderAdmin();
+async function rejectPlayer(name, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+  try {
+    await loadState();
+    S.players = S.players.filter(p => p.name !== name);
+    await saveState();
+    toast('Request rejected');
+    renderAdmin();
+  } catch(e) {
+    console.error('[reject] error:', e);
+    toast('Reject failed — please try again');
+    if (btn) { btn.disabled = false; btn.textContent = '✕'; }
+  }
 }
 async function unlockPlayer(name) {
   delete S.locked[name];
