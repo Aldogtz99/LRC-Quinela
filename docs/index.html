@@ -774,14 +774,14 @@ function updateTicker() {
   document.getElementById('tick-gs').textContent      = `Group Stage: ${S.windows.gs ? 'Open' : 'Closed'}`;
   document.getElementById('tick-ko').textContent      = `Knockout: ${S.windows.ko ? 'Open' : 'Closed'}`;
 }
-function switchTab(name, btn) {
+async function switchTab(name, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   ['leaderboard','predictions','picks','rules','admin'].forEach(t => {
     document.getElementById('tab-' + t).style.display = (t === name) ? 'block' : 'none';
   });
   if (name === 'leaderboard')  renderLeaderboard();
-  if (name === 'predictions')  renderPredictions();
+  if (name === 'predictions') { await loadState(); renderPredictions(); }
   if (name === 'picks')        renderPicks();
   if (name === 'rules')        renderRules();
   if (name === 'admin')        renderAdmin();
@@ -1171,10 +1171,11 @@ function setMyBracketWinner(matchId, team) {
   // Mirror the final winner+method into the existing scoring-relevant key
   // (ko_M01 etc.) so computePoints needs no changes to READ this data —
   // it already only cares about S.preds[player]['ko_' + matchId].
-  if (!S.preds[me][matchId]) S.preds[me][matchId] = {};
-  S.preds[me][matchId].winner = team;
-  S.preds[me][matchId].et  = mb[matchId].et;
-  S.preds[me][matchId].pen = mb[matchId].pen;
+  const scoreKey = 'ko_' + matchId;
+  if (!S.preds[me][scoreKey]) S.preds[me][scoreKey] = {};
+  S.preds[me][scoreKey].winner = team;
+  S.preds[me][scoreKey].et  = mb[matchId].et;
+  S.preds[me][scoreKey].pen = mb[matchId].pen;
 
   renderPredictions();
 }
@@ -1185,9 +1186,10 @@ function setMyBracketMethod(matchId, method) {
   mb[matchId].et  = (method === 'et');
   mb[matchId].pen = (method === 'pen');
 
-  if (!S.preds[me][matchId]) S.preds[me][matchId] = {};
-  S.preds[me][matchId].et  = mb[matchId].et;
-  S.preds[me][matchId].pen = mb[matchId].pen;
+  const scoreKey = 'ko_' + matchId;
+  if (!S.preds[me][scoreKey]) S.preds[me][scoreKey] = {};
+  S.preds[me][scoreKey].et  = mb[matchId].et;
+  S.preds[me][scoreKey].pen = mb[matchId].pen;
 
   renderPredictions();
 }
