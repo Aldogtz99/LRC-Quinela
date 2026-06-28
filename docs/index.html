@@ -1387,6 +1387,20 @@ function renderPredictions() {
         const t2Label = t2 || m.t2Label;
         const method  = node.et ? 'et' : node.pen ? 'pen' : '90';
 
+        // TEMP DEBUG — remove after diagnosing disabled KO buttons
+        if (m.round === 'r32') {
+          console.log('[KO DEBUG]', m.id, {
+            koOpen,
+            locked,
+            teamsKnown,
+            'mb[id].t1': t1,
+            'mb[id].t2': t2,
+            dis,
+            'S.koMatches[id].t1': (S.koMatches[m.id] || {}).t1,
+            'S.koMatches[id].t2': (S.koMatches[m.id] || {}).t2,
+          });
+        }
+
         h += `<div class="match-row" style="${!teamsKnown ? 'opacity:.45' : ''}">
           <div>
             <div class="match-teams">${tf(t1)||t1Label} vs ${tf(t2)||t2Label}</div>
