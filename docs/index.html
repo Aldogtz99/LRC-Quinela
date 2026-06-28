@@ -434,10 +434,28 @@ const FLAG_ISO = {
   POR:'pt', CGO:'cd', UZB:'uz', COL:'co',
   ENG:'gb-eng', CRO:'hr', GHA:'gh', PAN:'pa',
 };
+// Aliases for common code variations admin might type when manually
+// assigning KO matchups (free-text input). Maps alias → canonical FLAG_ISO key.
+// Display-only — does not change what's stored in S.koMatches.
+const FLAG_ALIASES = {
+  CV:'CPV', CAPEVERDE:'CPV',
+  RSA:'ZAF', SOUTHAFRICA:'ZAF',
+  SOUTHKOREA:'KOR', KR:'KOR',
+  ENGLAND:'ENG', GBENG:'ENG',
+  SCOTLAND:'SCO', GBSCT:'SCO',
+  IVORYCOAST:'CIV', COTEDIVOIRE:'CIV',
+  CURACAO:'CUW',
+  SAUDI:'KSA', SAUDIARABIA:'KSA',
+  DRCONGO:'CGO', CONGO:'CGO',
+  USA1:'USA',
+};
 // Returns flag img + team code span. Falls back to plain code if no mapping.
+// Tries the code as-is first, then checks FLAG_ALIASES for a known variant.
 function tf(code) {
   if (!code) return '';
-  const iso = FLAG_ISO[code.toUpperCase()];
+  const upper = code.toUpperCase().trim();
+  const canonical = FLAG_ISO[upper] ? upper : FLAG_ALIASES[upper];
+  const iso = canonical ? FLAG_ISO[canonical] : undefined;
   const img = iso
     ? `<img src="https://flagcdn.com/20x15/${iso}.png" width="20" height="15" alt="${code}" style="border-radius:2px;vertical-align:middle;margin-right:3px;flex-shrink:0">`
     : '';
@@ -574,44 +592,44 @@ const KO_ROUNDS = [
 // 3rd-place slots are admin-assigned (FIFA's lookup table has 495 combinations).
 const KO_BRACKET = [
   // ── ROUND OF 32 (M01–M16) ──────────────────────
-  { id:'M01', round:'r32', pts:2, t1Label:'Runner-up A',        t2Label:'Runner-up B',          nextId:'M17', nextSlot:1 },
-  { id:'M02', round:'r32', pts:2, t1Label:'Winner C',           t2Label:'Runner-up F',           nextId:'M17', nextSlot:2 },
-  { id:'M03', round:'r32', pts:2, t1Label:'Winner E',           t2Label:'Best 3rd (A/B/C/D/F)',  nextId:'M18', nextSlot:1 },
-  { id:'M04', round:'r32', pts:2, t1Label:'Winner F',           t2Label:'Runner-up C',           nextId:'M18', nextSlot:2 },
-  { id:'M05', round:'r32', pts:2, t1Label:'Runner-up E',        t2Label:'Runner-up I',           nextId:'M19', nextSlot:1 },
-  { id:'M06', round:'r32', pts:2, t1Label:'Winner I',           t2Label:'Best 3rd (C/D/F/G/H)',  nextId:'M19', nextSlot:2 },
-  { id:'M07', round:'r32', pts:2, t1Label:'Winner A',           t2Label:'Best 3rd (C/E/F/H/I)',  nextId:'M20', nextSlot:1 },
-  { id:'M08', round:'r32', pts:2, t1Label:'Winner L',           t2Label:'Best 3rd (E/H/I/J/K)',  nextId:'M20', nextSlot:2 },
-  { id:'M09', round:'r32', pts:2, t1Label:'Winner G',           t2Label:'Best 3rd (A/E/H/I/J)',  nextId:'M21', nextSlot:1 },
-  { id:'M10', round:'r32', pts:2, t1Label:'Winner D',           t2Label:'Best 3rd (B/E/F/I/J)',  nextId:'M21', nextSlot:2 },
-  { id:'M11', round:'r32', pts:2, t1Label:'Winner H',           t2Label:'Runner-up J',           nextId:'M22', nextSlot:1 },
-  { id:'M12', round:'r32', pts:2, t1Label:'Runner-up K',        t2Label:'Runner-up L',           nextId:'M22', nextSlot:2 },
-  { id:'M13', round:'r32', pts:2, t1Label:'Winner B',           t2Label:'Best 3rd (E/F/G/I/J)',  nextId:'M23', nextSlot:1 },
-  { id:'M14', round:'r32', pts:2, t1Label:'Runner-up D',        t2Label:'Runner-up G',           nextId:'M23', nextSlot:2 },
-  { id:'M15', round:'r32', pts:2, t1Label:'Winner J',           t2Label:'Runner-up H',           nextId:'M24', nextSlot:1 },
-  { id:'M16', round:'r32', pts:2, t1Label:'Winner K',           t2Label:'Best 3rd (D/E/I/J/L)',  nextId:'M24', nextSlot:2 },
+  { id:'M01', round:'r32', pts:3, t1Label:'Runner-up A',        t2Label:'Runner-up B',          nextId:'M17', nextSlot:1 },
+  { id:'M02', round:'r32', pts:3, t1Label:'Winner C',           t2Label:'Runner-up F',           nextId:'M17', nextSlot:2 },
+  { id:'M03', round:'r32', pts:3, t1Label:'Winner E',           t2Label:'Best 3rd (A/B/C/D/F)',  nextId:'M18', nextSlot:1 },
+  { id:'M04', round:'r32', pts:3, t1Label:'Winner F',           t2Label:'Runner-up C',           nextId:'M18', nextSlot:2 },
+  { id:'M05', round:'r32', pts:3, t1Label:'Runner-up E',        t2Label:'Runner-up I',           nextId:'M19', nextSlot:1 },
+  { id:'M06', round:'r32', pts:3, t1Label:'Winner I',           t2Label:'Best 3rd (C/D/F/G/H)',  nextId:'M19', nextSlot:2 },
+  { id:'M07', round:'r32', pts:3, t1Label:'Winner A',           t2Label:'Best 3rd (C/E/F/H/I)',  nextId:'M20', nextSlot:1 },
+  { id:'M08', round:'r32', pts:3, t1Label:'Winner L',           t2Label:'Best 3rd (E/H/I/J/K)',  nextId:'M20', nextSlot:2 },
+  { id:'M09', round:'r32', pts:3, t1Label:'Winner G',           t2Label:'Best 3rd (A/E/H/I/J)',  nextId:'M21', nextSlot:1 },
+  { id:'M10', round:'r32', pts:3, t1Label:'Winner D',           t2Label:'Best 3rd (B/E/F/I/J)',  nextId:'M21', nextSlot:2 },
+  { id:'M11', round:'r32', pts:3, t1Label:'Winner H',           t2Label:'Runner-up J',           nextId:'M22', nextSlot:1 },
+  { id:'M12', round:'r32', pts:3, t1Label:'Runner-up K',        t2Label:'Runner-up L',           nextId:'M22', nextSlot:2 },
+  { id:'M13', round:'r32', pts:3, t1Label:'Winner B',           t2Label:'Best 3rd (E/F/G/I/J)',  nextId:'M23', nextSlot:1 },
+  { id:'M14', round:'r32', pts:3, t1Label:'Runner-up D',        t2Label:'Runner-up G',           nextId:'M23', nextSlot:2 },
+  { id:'M15', round:'r32', pts:3, t1Label:'Winner J',           t2Label:'Runner-up H',           nextId:'M24', nextSlot:1 },
+  { id:'M16', round:'r32', pts:3, t1Label:'Winner K',           t2Label:'Best 3rd (D/E/I/J/L)',  nextId:'M24', nextSlot:2 },
   // ── ROUND OF 16 (M17–M24) ──────────────────────
-  { id:'M17', round:'r16', pts:3, t1Label:'Winner M01',         t2Label:'Winner M02',            nextId:'M25', nextSlot:1 },
-  { id:'M18', round:'r16', pts:3, t1Label:'Winner M03',         t2Label:'Winner M04',            nextId:'M25', nextSlot:2 },
-  { id:'M19', round:'r16', pts:3, t1Label:'Winner M05',         t2Label:'Winner M06',            nextId:'M26', nextSlot:1 },
-  { id:'M20', round:'r16', pts:3, t1Label:'Winner M07',         t2Label:'Winner M08',            nextId:'M26', nextSlot:2 },
-  { id:'M21', round:'r16', pts:3, t1Label:'Winner M09',         t2Label:'Winner M10',            nextId:'M27', nextSlot:1 },
-  { id:'M22', round:'r16', pts:3, t1Label:'Winner M11',         t2Label:'Winner M12',            nextId:'M27', nextSlot:2 },
-  { id:'M23', round:'r16', pts:3, t1Label:'Winner M13',         t2Label:'Winner M14',            nextId:'M28', nextSlot:1 },
-  { id:'M24', round:'r16', pts:3, t1Label:'Winner M15',         t2Label:'Winner M16',            nextId:'M28', nextSlot:2 },
+  { id:'M17', round:'r16', pts:4, t1Label:'Winner M01',         t2Label:'Winner M02',            nextId:'M25', nextSlot:1 },
+  { id:'M18', round:'r16', pts:4, t1Label:'Winner M03',         t2Label:'Winner M04',            nextId:'M25', nextSlot:2 },
+  { id:'M19', round:'r16', pts:4, t1Label:'Winner M05',         t2Label:'Winner M06',            nextId:'M26', nextSlot:1 },
+  { id:'M20', round:'r16', pts:4, t1Label:'Winner M07',         t2Label:'Winner M08',            nextId:'M26', nextSlot:2 },
+  { id:'M21', round:'r16', pts:4, t1Label:'Winner M09',         t2Label:'Winner M10',            nextId:'M27', nextSlot:1 },
+  { id:'M22', round:'r16', pts:4, t1Label:'Winner M11',         t2Label:'Winner M12',            nextId:'M27', nextSlot:2 },
+  { id:'M23', round:'r16', pts:4, t1Label:'Winner M13',         t2Label:'Winner M14',            nextId:'M28', nextSlot:1 },
+  { id:'M24', round:'r16', pts:4, t1Label:'Winner M15',         t2Label:'Winner M16',            nextId:'M28', nextSlot:2 },
   // ── QUARTERFINALS (M25–M28) ────────────────────
-  { id:'M25', round:'qf',  pts:4, t1Label:'Winner M17',         t2Label:'Winner M18',            nextId:'M29', nextSlot:1 },
-  { id:'M26', round:'qf',  pts:4, t1Label:'Winner M19',         t2Label:'Winner M20',            nextId:'M29', nextSlot:2 },
-  { id:'M27', round:'qf',  pts:4, t1Label:'Winner M21',         t2Label:'Winner M22',            nextId:'M30', nextSlot:1 },
-  { id:'M28', round:'qf',  pts:4, t1Label:'Winner M23',         t2Label:'Winner M24',            nextId:'M30', nextSlot:2 },
+  { id:'M25', round:'qf',  pts:5, t1Label:'Winner M17',         t2Label:'Winner M18',            nextId:'M29', nextSlot:1 },
+  { id:'M26', round:'qf',  pts:5, t1Label:'Winner M19',         t2Label:'Winner M20',            nextId:'M29', nextSlot:2 },
+  { id:'M27', round:'qf',  pts:5, t1Label:'Winner M21',         t2Label:'Winner M22',            nextId:'M30', nextSlot:1 },
+  { id:'M28', round:'qf',  pts:5, t1Label:'Winner M23',         t2Label:'Winner M24',            nextId:'M30', nextSlot:2 },
   // ── SEMIFINALS (M29–M30) ───────────────────────
-  { id:'M29', round:'sf',  pts:6, t1Label:'Winner M25',         t2Label:'Winner M26',            nextId:'M32', nextSlot:1 },
-  { id:'M30', round:'sf',  pts:6, t1Label:'Winner M27',         t2Label:'Winner M28',            nextId:'M32', nextSlot:2 },
+  { id:'M29', round:'sf',  pts:7, t1Label:'Winner M25',         t2Label:'Winner M26',            nextId:'M32', nextSlot:1 },
+  { id:'M30', round:'sf',  pts:7, t1Label:'Winner M27',         t2Label:'Winner M28',            nextId:'M32', nextSlot:2 },
   // ── 3RD PLACE (M31) ────────────────────────────
   // Loser of M29 vs loser of M30. nextId null — terminal match.
-  { id:'M31', round:'tp',  pts:4, t1Label:'Loser M29',          t2Label:'Loser M30',             nextId:null,  nextSlot:null },
+  { id:'M31', round:'tp',  pts:5, t1Label:'Loser M29',          t2Label:'Loser M30',             nextId:null,  nextSlot:null },
   // ── FINAL (M32) ────────────────────────────────
-  { id:'M32', round:'fin', pts:8, t1Label:'Winner M29',         t2Label:'Winner M30',            nextId:null,  nextSlot:null },
+  { id:'M32', round:'fin', pts:10, t1Label:'Winner M29',         t2Label:'Winner M30',            nextId:null,  nextSlot:null },
 ];
 
 // ── STATE ────────────────────────────────────────
@@ -1103,6 +1121,76 @@ function setScore(matchId, shVal, saVal) {
   console.log(`[setScore] ${matchId} — saving ${sh}-${sa} r=${r}`);
   S.preds[me][matchId] = { sh, sa, r };
 }
+function myBracketInit(playerName) {
+  // Ensures S.preds[playerName].myBracket exists with one entry per KO_BRACKET match.
+  // myBracket mirrors KO_BRACKET's shape but is fully player-owned — it NEVER
+  // touches S.koMatches (the real, admin-controlled tournament bracket).
+  if (!S.preds[playerName]) S.preds[playerName] = {};
+  if (!S.preds[playerName].myBracket) S.preds[playerName].myBracket = {};
+  const mb = S.preds[playerName].myBracket;
+  KO_BRACKET.forEach(m => {
+    if (!mb[m.id]) mb[m.id] = { t1: null, t2: null, winner: null, et: false, pen: false };
+  });
+  // R32 slots are always seeded from the REAL admin-assigned teams — that part
+  // of the bracket is fact (the matchups are official), only the winners onward
+  // are the player's personal prediction.
+  KO_BRACKET.filter(m => m.round === 'r32').forEach(m => {
+    const real = (S.koMatches || {})[m.id] || {};
+    mb[m.id].t1 = real.t1 || null;
+    mb[m.id].t2 = real.t2 || null;
+  });
+  return mb;
+}
+function myBracketPropagate(playerName, matchId) {
+  // Same nextId/nextSlot algorithm as propagateKoWinner, but writes into
+  // the player's own myBracket instead of the shared S.koMatches.
+  const mb    = S.preds[playerName].myBracket;
+  const match = KO_BRACKET.find(m => m.id === matchId);
+  const node  = mb[matchId];
+  if (!match || !node || !node.winner) return;
+  if (match.nextId) {
+    if (!mb[match.nextId]) return;
+    if (match.nextSlot === 1) mb[match.nextId].t1 = node.winner;
+    if (match.nextSlot === 2) mb[match.nextId].t2 = node.winner;
+  }
+  // 3rd place (M31) takes the LOSERS of the player's own M29/M30 picks —
+  // same special case as the real bracket, mirrored into myBracket.
+  const loser = node.t1 === node.winner ? node.t2 : node.t1;
+  if (matchId === 'M29' && mb['M31']) mb['M31'].t1 = loser;
+  if (matchId === 'M30' && mb['M31']) mb['M31'].t2 = loser;
+}
+function setMyBracketWinner(matchId, team) {
+  // Player clicks a team in their personal bracket. Sets the winner,
+  // propagates it into the next round's slot, and writes the same
+  // ko_M01-style key that computePoints already reads for scoring.
+  const mb = myBracketInit(me);
+  if (!mb[matchId]) return;
+  mb[matchId].winner = team;
+  myBracketPropagate(me, matchId);
+
+  // Mirror the final winner+method into the existing scoring-relevant key
+  // (ko_M01 etc.) so computePoints needs no changes to READ this data —
+  // it already only cares about S.preds[player]['ko_' + matchId].
+  if (!S.preds[me][matchId]) S.preds[me][matchId] = {};
+  S.preds[me][matchId].winner = team;
+  S.preds[me][matchId].et  = mb[matchId].et;
+  S.preds[me][matchId].pen = mb[matchId].pen;
+
+  renderPredictions();
+}
+function setMyBracketMethod(matchId, method) {
+  // method is '90' | 'et' | 'pen' — derived into the existing et/pen booleans.
+  const mb = myBracketInit(me);
+  if (!mb[matchId]) return;
+  mb[matchId].et  = (method === 'et');
+  mb[matchId].pen = (method === 'pen');
+
+  if (!S.preds[me][matchId]) S.preds[me][matchId] = {};
+  S.preds[me][matchId].et  = mb[matchId].et;
+  S.preds[me][matchId].pen = mb[matchId].pen;
+
+  renderPredictions();
+}
 function setKoPred(matchId, field, value) {
   if (!S.preds[me])          S.preds[me]          = {};
   if (!S.preds[me][matchId]) S.preds[me][matchId] = {};
@@ -1264,55 +1352,79 @@ function renderPredictions() {
     });
   }
 
-  // Phase 2 — Knockout
-  // Always shown (Option A) — skeleton visible early, picks disabled until teams assigned + window open.
+  // Phase 2 — Knockout — personal bracket flow.
+  // Players predict the ENTIRE tournament in one sitting via their own
+  // myBracket, independent of how far the real tournament has progressed.
+  // R32 teams are seeded from the real official matchups (admin-assigned).
+  // Every round after that is the player's own prediction, auto-propagated.
   {
-    const km = S.koMatches || {};
-    const roundOrder = ['r32','r16','qf','sf','tp','fin'];
-    const roundLabels = { r32:'Round of 32', r16:'Round of 16', qf:'Quarterfinals', sf:'Semifinals', tp:'3rd Place Match', fin:'Final' };
+    const mb = myBracketInit(me);
+    const roundOrder  = ['r32','r16','qf','sf','tp','fin'];
+    const roundLabels = { r32:'Round of 32', r16:'Round of 16', qf:'Quarterfinals', sf:'Semifinals', tp:'3rd Place', fin:'Final' };
+
     h += `<div class="phase-hdr"><span>Phase 2 — Knockout</span><span class="badge ${koOpen?'badge-open':'badge-closed'}">${koOpen?'Open':'Closed'}</span></div>`;
-    if (koOpen) h += `<div class="info-box">Pick the winner of each match. Predict extra time (+ET) or penalties (+PEN) for bonus points.</div>`;
+    if (koOpen) {
+      h += `<div class="info-box">Start by predicting the Round of 32. Every winner you choose automatically advances through your personal bracket until you select your champion.</div>`;
+    }
+
     roundOrder.forEach(round => {
       const roundMatches = KO_BRACKET.filter(m => m.round === round);
       const pts = roundMatches[0].pts;
-      h += `<div style="margin-bottom:1rem"><div class="sec-label">${roundLabels[round]} · ${pts} pts</div>`;
+      h += `<div style="margin-bottom:1rem"><div class="sec-label">${roundLabels[round]} · ${pts} pts + 2 method bonus</div>`;
+
       roundMatches.forEach(m => {
-        const state   = km[m.id] || {};
-        const t1      = state.t1;
-        const t2      = state.t2;
-        const teamsKnown = t1 && t2;
-        const pr      = preds['ko_' + m.id] || {};
-        // Disabled if: locked, or KO window not open, or teams not yet assigned
+        const node    = mb[m.id];
+        const t1      = node.t1;
+        const t2      = node.t2;
+        const teamsKnown = !!(t1 && t2);
+        // Disabled if: locked, KO window closed, or this match's teams
+        // haven't been determined yet in THIS player's own bracket path
+        // (i.e. they haven't picked the winners of the matches that feed it).
         const dis     = locked || !koOpen || !teamsKnown;
         const t1Label = t1 || m.t1Label;
         const t2Label = t2 || m.t2Label;
+        const method  = node.et ? 'et' : node.pen ? 'pen' : '90';
+
         h += `<div class="match-row" style="${!teamsKnown ? 'opacity:.45' : ''}">
           <div>
             <div class="match-teams">${tf(t1)||t1Label} vs ${tf(t2)||t2Label}</div>
-            <div class="match-sub">${teamsKnown ? m.id : 'Teams TBD'}</div>
+            <div class="match-sub">${teamsKnown ? m.id : 'Waiting on your picks above'}</div>
           </div>
           <div style="display:flex;gap:.35rem;align-items:center;flex-wrap:wrap">
-            <button class="r-btn ${pr.winner===t1&&teamsKnown?'sel':''}"
-              onclick="setKoPred('ko_${m.id}','winner','${t1||''}')"
+            <button class="r-btn ${node.winner===t1&&teamsKnown?'sel':''}"
+              onclick="setMyBracketWinner('${m.id}','${t1||''}')"
               ${dis?'disabled':''}
-              style="font-family:var(--font-s);font-size:.72rem;letter-spacing:.04em;padding:.28rem .55rem">${t1Label}</button>
-            <button class="r-btn ${pr.winner===t2&&teamsKnown?'sel':''}"
-              onclick="setKoPred('ko_${m.id}','winner','${t2||''}')"
+              style="font-family:var(--font-s);font-size:.72rem;letter-spacing:.04em;padding:.28rem .55rem">${tf(t1)||t1Label}</button>
+            <button class="r-btn ${node.winner===t2&&teamsKnown?'sel':''}"
+              onclick="setMyBracketWinner('${m.id}','${t2||''}')"
               ${dis?'disabled':''}
-              style="font-family:var(--font-s);font-size:.72rem;letter-spacing:.04em;padding:.28rem .55rem">${t2Label}</button>
+              style="font-family:var(--font-s);font-size:.72rem;letter-spacing:.04em;padding:.28rem .55rem">${tf(t2)||t2Label}</button>
           </div>
-          <div style="display:flex;gap:.4rem;align-items:center">
-            <label style="font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:.2rem;cursor:${dis?'not-allowed':'pointer'}">
-              <input type="checkbox" ${pr.et?'checked':''} onchange="setKoPred('ko_${m.id}','et',this.checked)" ${dis?'disabled':''} style="width:auto;accent-color:var(--lime)"/> ET
-            </label>
-            <label style="font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:.2rem;cursor:${dis?'not-allowed':'pointer'}">
-              <input type="checkbox" ${pr.pen?'checked':''} onchange="setKoPred('ko_${m.id}','pen',this.checked)" ${dis?'disabled':''} style="width:auto;accent-color:var(--lime)"/> PEN
-            </label>
+          <div style="display:flex;gap:.3rem;align-items:center;flex-wrap:wrap">
+            <button class="r-btn ${method==='90'?'sel':''}" onclick="setMyBracketMethod('${m.id}','90')" ${dis||!node.winner?'disabled':''}
+              style="font-family:var(--font-s);font-size:.65rem;padding:.2rem .45rem">90'</button>
+            <button class="r-btn ${method==='et'?'sel':''}" onclick="setMyBracketMethod('${m.id}','et')" ${dis||!node.winner?'disabled':''}
+              style="font-family:var(--font-s);font-size:.65rem;padding:.2rem .45rem">ET</button>
+            <button class="r-btn ${method==='pen'?'sel':''}" onclick="setMyBracketMethod('${m.id}','pen')" ${dis||!node.winner?'disabled':''}
+              style="font-family:var(--font-s);font-size:.65rem;padding:.2rem .45rem">PEN</button>
           </div>
         </div>`;
       });
       h += '</div>';
     });
+
+    // Champion section — derived from M32's winner in the player's own bracket
+    const champion = mb['M32'] ? mb['M32'].winner : null;
+    h += `<div style="margin-bottom:1rem"><div class="sec-label">Champion</div>
+      <div class="match-row" style="justify-content:center;background:var(--dark4)">
+        <div style="text-align:center;width:100%">
+          ${champion
+            ? `<div class="match-teams" style="font-size:1.1rem">${tf(champion)} <span style="color:var(--lime)">is your champion 🏆</span></div>`
+            : `<div class="match-sub">Complete your bracket through the Final to see your champion</div>`
+          }
+        </div>
+      </div>
+    </div>`;
   }
 
   // Action buttons
@@ -1343,12 +1455,13 @@ function calcGSBadge(pr, res) {
 }
 function calcKOBadge(pr, km, matchPts) {
   // Returns points earned for a KO pick vs a result, or 0 if none.
-  // Display-only — does not affect scoring.
+  // Display-only — mirrors computePoints exactly, does not affect scoring.
   if (!km || !km.winner || !pr || !pr.winner) return 0;
   if (pr.winner !== km.winner) return 0;
   let pts = matchPts;
-  if (pr.et  && km.et)  pts += 1;
-  if (pr.pen && km.pen) pts += 2;
+  const prMethod  = pr.et  ? 'et'  : pr.pen  ? 'pen'  : '90';
+  const kmMethod  = km.et  ? 'et'  : km.pen  ? 'pen'  : '90';
+  if (prMethod === kmMethod) pts += 2;
   return pts;
 }
 function ptsBadge(pts) {
@@ -1895,10 +2008,13 @@ function computePoints() {
       if (!res.winner) return;                   // match not played yet
       const pr = preds['ko_' + m.id] || {};
       if (!pr.winner) return;                    // player didn't pick
-      if (pr.winner !== res.winner) return;      // wrong winner — no points
-      kopts += m.pts;                            // correct winner
-      if (pr.et  && res.et)  kopts += 1;        // ET bonus
-      if (pr.pen && res.pen) kopts += 2;        // PEN bonus
+      if (pr.winner !== res.winner) return;      // wrong winner — no points at all
+      kopts += m.pts;                            // correct winner — round points
+      // Method bonus: flat +2 if predicted method matches actual method.
+      // Method derived from et/pen booleans: !et && !pen = '90', et = 'ET', pen = 'PEN'.
+      const prMethod  = pr.et  ? 'et'  : pr.pen  ? 'pen'  : '90';
+      const resMethod = res.et ? 'et'  : res.pen ? 'pen'  : '90';
+      if (prMethod === resMethod) kopts += 2;
     });
 
     pl.pts = pts + kopts; pl.exactScores = exact; pl.kopts = kopts;
