@@ -575,12 +575,12 @@ const GROUPS = [
 
 // ── KNOCKOUT ROUNDS ──────────────────────────────
 const KO_ROUNDS = [
-  {id:'r32', label:'Round of 32',     pts:2},
-  {id:'r16', label:'Round of 16',     pts:3},
-  {id:'qf',  label:'Quarterfinals',   pts:4},
-  {id:'sf',  label:'Semifinals',      pts:6},
-  {id:'tp',  label:'3rd Place Match', pts:4},
-  {id:'fin', label:'Final',           pts:8},
+  {id:'r32', label:'Round of 32',     pts:4},
+  {id:'r16', label:'Round of 16',     pts:5},
+  {id:'qf',  label:'Quarterfinals',   pts:6},
+  {id:'sf',  label:'Semifinals',      pts:8},
+  {id:'tp',  label:'3rd Place Match', pts:7},
+  {id:'fin', label:'Final',           pts:10},
 ];
 
 // ── KNOCKOUT BRACKET ─────────────────────────────
@@ -592,42 +592,42 @@ const KO_ROUNDS = [
 // 3rd-place slots are admin-assigned (FIFA's lookup table has 495 combinations).
 const KO_BRACKET = [
   // ── ROUND OF 32 (M01–M16) ──────────────────────
-  { id:'M01', round:'r32', pts:3, t1Label:'Runner-up A',        t2Label:'Runner-up B',          nextId:'M17', nextSlot:1 },
-  { id:'M02', round:'r32', pts:3, t1Label:'Winner C',           t2Label:'Runner-up F',           nextId:'M17', nextSlot:2 },
-  { id:'M03', round:'r32', pts:3, t1Label:'Winner E',           t2Label:'Best 3rd (A/B/C/D/F)',  nextId:'M18', nextSlot:1 },
-  { id:'M04', round:'r32', pts:3, t1Label:'Winner F',           t2Label:'Runner-up C',           nextId:'M18', nextSlot:2 },
-  { id:'M05', round:'r32', pts:3, t1Label:'Runner-up E',        t2Label:'Runner-up I',           nextId:'M19', nextSlot:1 },
-  { id:'M06', round:'r32', pts:3, t1Label:'Winner I',           t2Label:'Best 3rd (C/D/F/G/H)',  nextId:'M19', nextSlot:2 },
-  { id:'M07', round:'r32', pts:3, t1Label:'Winner A',           t2Label:'Best 3rd (C/E/F/H/I)',  nextId:'M20', nextSlot:1 },
-  { id:'M08', round:'r32', pts:3, t1Label:'Winner L',           t2Label:'Best 3rd (E/H/I/J/K)',  nextId:'M20', nextSlot:2 },
-  { id:'M09', round:'r32', pts:3, t1Label:'Winner G',           t2Label:'Best 3rd (A/E/H/I/J)',  nextId:'M21', nextSlot:1 },
-  { id:'M10', round:'r32', pts:3, t1Label:'Winner D',           t2Label:'Best 3rd (B/E/F/I/J)',  nextId:'M21', nextSlot:2 },
-  { id:'M11', round:'r32', pts:3, t1Label:'Winner H',           t2Label:'Runner-up J',           nextId:'M22', nextSlot:1 },
-  { id:'M12', round:'r32', pts:3, t1Label:'Runner-up K',        t2Label:'Runner-up L',           nextId:'M22', nextSlot:2 },
-  { id:'M13', round:'r32', pts:3, t1Label:'Winner B',           t2Label:'Best 3rd (E/F/G/I/J)',  nextId:'M23', nextSlot:1 },
-  { id:'M14', round:'r32', pts:3, t1Label:'Runner-up D',        t2Label:'Runner-up G',           nextId:'M23', nextSlot:2 },
-  { id:'M15', round:'r32', pts:3, t1Label:'Winner J',           t2Label:'Runner-up H',           nextId:'M24', nextSlot:1 },
-  { id:'M16', round:'r32', pts:3, t1Label:'Winner K',           t2Label:'Best 3rd (D/E/I/J/L)',  nextId:'M24', nextSlot:2 },
+  { id:'M01', round:'r32', pts:4, t1Label:'Runner-up A',        t2Label:'Runner-up B',          nextId:'M17', nextSlot:1 },
+  { id:'M02', round:'r32', pts:4, t1Label:'Winner C',           t2Label:'Runner-up F',           nextId:'M17', nextSlot:2 },
+  { id:'M03', round:'r32', pts:4, t1Label:'Winner E',           t2Label:'Best 3rd (A/B/C/D/F)',  nextId:'M18', nextSlot:1 },
+  { id:'M04', round:'r32', pts:4, t1Label:'Winner F',           t2Label:'Runner-up C',           nextId:'M18', nextSlot:2 },
+  { id:'M05', round:'r32', pts:4, t1Label:'Runner-up E',        t2Label:'Runner-up I',           nextId:'M19', nextSlot:1 },
+  { id:'M06', round:'r32', pts:4, t1Label:'Winner I',           t2Label:'Best 3rd (C/D/F/G/H)',  nextId:'M19', nextSlot:2 },
+  { id:'M07', round:'r32', pts:4, t1Label:'Winner A',           t2Label:'Best 3rd (C/E/F/H/I)',  nextId:'M20', nextSlot:1 },
+  { id:'M08', round:'r32', pts:4, t1Label:'Winner L',           t2Label:'Best 3rd (E/H/I/J/K)',  nextId:'M20', nextSlot:2 },
+  { id:'M09', round:'r32', pts:4, t1Label:'Winner G',           t2Label:'Best 3rd (A/E/H/I/J)',  nextId:'M21', nextSlot:1 },
+  { id:'M10', round:'r32', pts:4, t1Label:'Winner D',           t2Label:'Best 3rd (B/E/F/I/J)',  nextId:'M21', nextSlot:2 },
+  { id:'M11', round:'r32', pts:4, t1Label:'Winner H',           t2Label:'Runner-up J',           nextId:'M22', nextSlot:1 },
+  { id:'M12', round:'r32', pts:4, t1Label:'Runner-up K',        t2Label:'Runner-up L',           nextId:'M22', nextSlot:2 },
+  { id:'M13', round:'r32', pts:4, t1Label:'Winner B',           t2Label:'Best 3rd (E/F/G/I/J)',  nextId:'M23', nextSlot:1 },
+  { id:'M14', round:'r32', pts:4, t1Label:'Runner-up D',        t2Label:'Runner-up G',           nextId:'M23', nextSlot:2 },
+  { id:'M15', round:'r32', pts:4, t1Label:'Winner J',           t2Label:'Runner-up H',           nextId:'M24', nextSlot:1 },
+  { id:'M16', round:'r32', pts:4, t1Label:'Winner K',           t2Label:'Best 3rd (D/E/I/J/L)',  nextId:'M24', nextSlot:2 },
   // ── ROUND OF 16 (M17–M24) ──────────────────────
-  { id:'M17', round:'r16', pts:4, t1Label:'Winner M01',         t2Label:'Winner M02',            nextId:'M25', nextSlot:1 },
-  { id:'M18', round:'r16', pts:4, t1Label:'Winner M03',         t2Label:'Winner M04',            nextId:'M25', nextSlot:2 },
-  { id:'M19', round:'r16', pts:4, t1Label:'Winner M05',         t2Label:'Winner M06',            nextId:'M26', nextSlot:1 },
-  { id:'M20', round:'r16', pts:4, t1Label:'Winner M07',         t2Label:'Winner M08',            nextId:'M26', nextSlot:2 },
-  { id:'M21', round:'r16', pts:4, t1Label:'Winner M09',         t2Label:'Winner M10',            nextId:'M27', nextSlot:1 },
-  { id:'M22', round:'r16', pts:4, t1Label:'Winner M11',         t2Label:'Winner M12',            nextId:'M27', nextSlot:2 },
-  { id:'M23', round:'r16', pts:4, t1Label:'Winner M13',         t2Label:'Winner M14',            nextId:'M28', nextSlot:1 },
-  { id:'M24', round:'r16', pts:4, t1Label:'Winner M15',         t2Label:'Winner M16',            nextId:'M28', nextSlot:2 },
+  { id:'M17', round:'r16', pts:5, t1Label:'Winner M01',         t2Label:'Winner M02',            nextId:'M25', nextSlot:1 },
+  { id:'M18', round:'r16', pts:5, t1Label:'Winner M03',         t2Label:'Winner M04',            nextId:'M25', nextSlot:2 },
+  { id:'M19', round:'r16', pts:5, t1Label:'Winner M05',         t2Label:'Winner M06',            nextId:'M26', nextSlot:1 },
+  { id:'M20', round:'r16', pts:5, t1Label:'Winner M07',         t2Label:'Winner M08',            nextId:'M26', nextSlot:2 },
+  { id:'M21', round:'r16', pts:5, t1Label:'Winner M09',         t2Label:'Winner M10',            nextId:'M27', nextSlot:1 },
+  { id:'M22', round:'r16', pts:5, t1Label:'Winner M11',         t2Label:'Winner M12',            nextId:'M27', nextSlot:2 },
+  { id:'M23', round:'r16', pts:5, t1Label:'Winner M13',         t2Label:'Winner M14',            nextId:'M28', nextSlot:1 },
+  { id:'M24', round:'r16', pts:5, t1Label:'Winner M15',         t2Label:'Winner M16',            nextId:'M28', nextSlot:2 },
   // ── QUARTERFINALS (M25–M28) ────────────────────
-  { id:'M25', round:'qf',  pts:5, t1Label:'Winner M17',         t2Label:'Winner M18',            nextId:'M29', nextSlot:1 },
-  { id:'M26', round:'qf',  pts:5, t1Label:'Winner M19',         t2Label:'Winner M20',            nextId:'M29', nextSlot:2 },
-  { id:'M27', round:'qf',  pts:5, t1Label:'Winner M21',         t2Label:'Winner M22',            nextId:'M30', nextSlot:1 },
-  { id:'M28', round:'qf',  pts:5, t1Label:'Winner M23',         t2Label:'Winner M24',            nextId:'M30', nextSlot:2 },
+  { id:'M25', round:'qf',  pts:6, t1Label:'Winner M17',         t2Label:'Winner M18',            nextId:'M29', nextSlot:1 },
+  { id:'M26', round:'qf',  pts:6, t1Label:'Winner M19',         t2Label:'Winner M20',            nextId:'M29', nextSlot:2 },
+  { id:'M27', round:'qf',  pts:6, t1Label:'Winner M21',         t2Label:'Winner M22',            nextId:'M30', nextSlot:1 },
+  { id:'M28', round:'qf',  pts:6, t1Label:'Winner M23',         t2Label:'Winner M24',            nextId:'M30', nextSlot:2 },
   // ── SEMIFINALS (M29–M30) ───────────────────────
-  { id:'M29', round:'sf',  pts:7, t1Label:'Winner M25',         t2Label:'Winner M26',            nextId:'M32', nextSlot:1 },
-  { id:'M30', round:'sf',  pts:7, t1Label:'Winner M27',         t2Label:'Winner M28',            nextId:'M32', nextSlot:2 },
+  { id:'M29', round:'sf',  pts:8, t1Label:'Winner M25',         t2Label:'Winner M26',            nextId:'M32', nextSlot:1 },
+  { id:'M30', round:'sf',  pts:8, t1Label:'Winner M27',         t2Label:'Winner M28',            nextId:'M32', nextSlot:2 },
   // ── 3RD PLACE (M31) ────────────────────────────
   // Loser of M29 vs loser of M30. nextId null — terminal match.
-  { id:'M31', round:'tp',  pts:5, t1Label:'Loser M29',          t2Label:'Loser M30',             nextId:null,  nextSlot:null },
+  { id:'M31', round:'tp',  pts:7, t1Label:'Loser M29',          t2Label:'Loser M30',             nextId:null,  nextSlot:null },
   // ── FINAL (M32) ────────────────────────────────
   { id:'M32', round:'fin', pts:10, t1Label:'Winner M29',         t2Label:'Winner M30',            nextId:null,  nextSlot:null },
 ];
@@ -1646,9 +1646,8 @@ function renderRules() {
         <span style="font-family:var(--font-s);font-size:.8rem;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-left:.4rem">Knockout</span>
       </div>
       <table style="width:100%;border-collapse:collapse">
-        ${KO_ROUNDS.map(r => `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.32rem 0;font-size:.82rem;color:var(--light)">${r.label}</td><td style="text-align:right;font-family:var(--font-d);font-size:1rem;letter-spacing:.06em;color:var(--lime);padding:.32rem 0">${r.pts} pts</td></tr>`).join('')}
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:.32rem 0;font-size:.82rem;color:var(--light)">Goes to extra time</td><td style="text-align:right;font-family:var(--font-d);font-size:1rem;color:var(--lime);padding:.32rem 0">+1 pt</td></tr>
-        <tr><td style="padding:.32rem 0;font-size:.82rem;color:var(--light)">Goes to penalties</td><td style="text-align:right;font-family:var(--font-d);font-size:1rem;color:var(--lime);padding:.32rem 0">+2 pts</td></tr>
+        ${KO_ROUNDS.map((r,i) => `<tr style="border-bottom:1px solid var(--border)"><td style="padding:.32rem 0;font-size:.82rem;color:var(--light)">${r.label}</td><td style="text-align:right;font-family:var(--font-d);font-size:1rem;letter-spacing:.06em;color:var(--lime);padding:.32rem 0">${r.pts} pts</td></tr>`).join('')}
+        <tr><td style="padding:.32rem 0;font-size:.82rem;color:var(--light)">Correct match method (90', ET or PEN)</td><td style="text-align:right;font-family:var(--font-d);font-size:1rem;color:var(--lime);padding:.32rem 0">+2 pts</td></tr>
       </table>
     </div>
   </div>
