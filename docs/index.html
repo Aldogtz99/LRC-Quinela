@@ -1820,15 +1820,19 @@ function renderAdmin() {
             ${!ready?'disabled':''}
             style="font-family:var(--font-s);font-size:.72rem;letter-spacing:.04em;padding:.28rem .55rem">${t2||'TBD'}</button>
         </div>
-        <div style="display:flex;gap:.4rem;align-items:center">
-          <label style="font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:.2rem">
-            <input type="checkbox" ${km.et?'checked':''} onchange="setKoAdminField('${m.id}','et',this.checked)" ${!ready?'disabled':''} style="width:auto;accent-color:var(--lime)"/> ET
-          </label>
-          <label style="font-size:.72rem;color:var(--muted);display:flex;align-items:center;gap:.2rem">
-            <input type="checkbox" ${km.pen?'checked':''} onchange="setKoAdminField('${m.id}','pen',this.checked)" ${!ready?'disabled':''} style="width:auto;accent-color:var(--lime)"/> PEN
-          </label>
+        <div style="display:flex;gap:.3rem;align-items:center;flex-wrap:wrap">
+          ${(() => {
+            const method = km.et ? 'et' : km.pen ? 'pen' : '90';
+            return `
+            <button class="r-btn ${method==='90'?'sel':''}" onclick="setKoAdminMethod('${m.id}','90')" ${!ready?'disabled':''}
+              style="font-family:var(--font-s);font-size:.65rem;padding:.2rem .45rem">90'</button>
+            <button class="r-btn ${method==='et'?'sel':''}" onclick="setKoAdminMethod('${m.id}','et')" ${!ready?'disabled':''}
+              style="font-family:var(--font-s);font-size:.65rem;padding:.2rem .45rem">ET</button>
+            <button class="r-btn ${method==='pen'?'sel':''}" onclick="setKoAdminMethod('${m.id}','pen')" ${!ready?'disabled':''}
+              style="font-family:var(--font-s);font-size:.65rem;padding:.2rem .45rem">PEN</button>`;
+          })()}
           <button class="btn btn-ghost btn-sm" onclick="saveKoResult('${m.id}')" ${!ready||!km.winner?'disabled':''}>Save</button>
-          ${km.winner ? `<span style="font-size:.7rem;color:var(--lime);font-family:var(--font-s)">✓ ${km.winner}${km.et?' +ET':''}${km.pen?' +PEN':''}</span>` : ''}
+          ${km.winner ? `<span style="font-size:.7rem;color:var(--lime);font-family:var(--font-s)">✓ ${km.winner}${km.et?' +ET':km.pen?' +PEN':' (90\')'}</span>` : ''}
         </div>
       </div>`;
     });
@@ -1938,9 +1942,6 @@ async function clearKoTeams(matchId) {
 function setKoAdminField(matchId, field, value) {
   if (!S.koMatches[matchId]) return;
   S.koMatches[matchId][field] = value;
-  // ET and PEN mutually exclusive
-  if (field === 'et'  && value === true) S.koMatches[matchId].pen = false;
-  if (field === 'pen' && value === true) S.koMatches[matchId].et  = false;
   // Update winner buttons in-place — do NOT re-render the whole admin tab
   if (field === 'winner') {
     const km = S.koMatches[matchId];
@@ -1950,12 +1951,19 @@ function setKoAdminField(matchId, field, value) {
       if (m) btn.classList.toggle('sel', km.winner === m[1]);
     });
   }
-  // ET/PEN: sync checkboxes in-place
-  if (field === 'et' || field === 'pen') {
-    const km = S.koMatches[matchId];
-    document.querySelectorAll(`[onchange*="setKoAdminField('${matchId}','et',"]`).forEach(cb => { cb.checked = !!km.et; });
-    document.querySelectorAll(`[onchange*="setKoAdminField('${matchId}','pen',"]`).forEach(cb => { cb.checked = !!km.pen; });
-  }
+}
+function setKoAdminMethod(matchId, method) {
+  // method is exactly one of '90' | 'et' | 'pen' — explicit choice, never ambiguous.
+  // Derives the existing et/pen booleans so storage and scoring need no changes.
+  if (!S.koMatches[matchId]) return;
+  S.koMatches[matchId].et  = (method === 'et');
+  S.koMatches[matchId].pen = (method === 'pen');
+  // Update the three method buttons in-place — do NOT re-render the whole admin tab
+  document.querySelectorAll(`[onclick*="setKoAdminMethod('${matchId}','"]`).forEach(btn => {
+    const onc = btn.getAttribute('onclick') || '';
+    const m = onc.match(/setKoAdminMethod\('[^']+','([^']*)'\)/);
+    if (m) btn.classList.toggle('sel', method === m[1]);
+  });
 }
 function propagateKoWinner(matchId) {
   const match   = KO_BRACKET.find(m => m.id === matchId);
