@@ -1831,7 +1831,8 @@ function renderAdmin() {
             <button class="r-btn ${method==='pen'?'sel':''}" onclick="setKoAdminMethod('${m.id}','pen')" ${!ready?'disabled':''}
               style="font-family:var(--font-s);font-size:.65rem;padding:.2rem .45rem">PEN</button>`;
           })()}
-          <button class="btn btn-ghost btn-sm" onclick="saveKoResult('${m.id}')" ${!ready||!km.winner?'disabled':''}>Save</button>
+          <button class="btn btn-ghost btn-sm" id="koSave_${m.id}" onclick="saveKoResult('${m.id}')" ${!ready||!km.winner?'disabled':''}>Save</button>
+          <button class="btn-danger" onclick="clearKoResult('${m.id}')" ${!km.winner&&!km.t1?'disabled':''} style="font-size:.7rem;padding:.28rem .55rem">Clear</button>
           ${km.winner ? `<span style="font-size:.7rem;color:var(--lime);font-family:var(--font-s)">✓ ${km.winner}${km.et?' +ET':km.pen?' +PEN':' (90\')'}</span>` : ''}
         </div>
       </div>`;
@@ -1939,6 +1940,17 @@ async function clearKoTeams(matchId) {
   toast(`${matchId} cleared`);
   renderAdmin();
 }
+function updateKoSaveButton(matchId) {
+  // Re-evaluates whether the Save button for this match should be enabled.
+  // Required: both teams assigned AND a winner selected.
+  // Method (90'/ET/PEN) is always in a defined state by construction
+  // (et/pen default false = 90'), so it is never a blocking condition.
+  const km = S.koMatches[matchId];
+  const btn = document.getElementById('koSave_' + matchId);
+  if (!btn || !km) return;
+  const ready = !!(km.t1 && km.t2);
+  btn.disabled = !(ready && km.winner);
+}
 function setKoAdminField(matchId, field, value) {
   if (!S.koMatches[matchId]) return;
   S.koMatches[matchId][field] = value;
@@ -1950,6 +1962,7 @@ function setKoAdminField(matchId, field, value) {
       const m = onc.match(/setKoAdminField\('[^']+','winner','([^']*)'\)/);
       if (m) btn.classList.toggle('sel', km.winner === m[1]);
     });
+    updateKoSaveButton(matchId);
   }
 }
 function setKoAdminMethod(matchId, method) {
@@ -1964,6 +1977,7 @@ function setKoAdminMethod(matchId, method) {
     const m = onc.match(/setKoAdminMethod\('[^']+','([^']*)'\)/);
     if (m) btn.classList.toggle('sel', method === m[1]);
   });
+  updateKoSaveButton(matchId);
 }
 function propagateKoWinner(matchId) {
   const match   = KO_BRACKET.find(m => m.id === matchId);
@@ -1979,6 +1993,44 @@ function propagateKoWinner(matchId) {
   const loser = km.t1 === km.winner ? km.t2 : km.t1;
   if (matchId === 'M29') S.koMatches['M31'].t1 = loser;
   if (matchId === 'M30') S.koMatches['M31'].t2 = loser;
+}
+async function clearKoResultDownstream(matchId, team) {
+  // Recursively removes `team` from any match it was propagated into,
+  // exactly undoing propagateKoWinner's effect — as if the result never happened.
+  const match = KO_BRACKET.find(m => m.id === matchId);
+  if (!match || !match.nextId) return;
+  const next = S.koMatches[match.nextId];
+  if (!next) return;
+  let nextWinnerWasThisTeam = false;
+  if (match.nextSlot === 1 && next.t1 === team) { next.t1 = null; nextWinnerWasThisTeam = (next.winner === team); }
+  if (match.nextSlot === 2 && next.t2 === team) { next.t2 = null; nextWinnerWasThisTeam = (next.winner === team); }
+  // If the downstream match's own winner WAS this team, that result is now
+  // invalid too (one of its teams just disappeared) — clear it and cascade further.
+  if (nextWinnerWasThisTeam) {
+    const advancedTeam = next.winner;
+    next.winner = null; next.et = false; next.pen = false;
+    await clearKoResultDownstream(match.nextId, advancedTeam);
+  }
+  // 3rd place special case: if this was M29 or M30, also clear the loser from M31
+  if (matchId === 'M29' && S.koMatches['M31']) S.koMatches['M31'].t1 = null;
+  if (matchId === 'M30' && S.koMatches['M31']) S.koMatches['M31'].t2 = null;
+}
+async function clearKoResult(matchId) {
+  const km = S.koMatches[matchId];
+  if (!km) return;
+  if (!confirm(`Clear the result for ${matchId}? This will also remove it from any round it already advanced to.`)) return;
+  const previousWinner = km.winner;
+  km.winner = null;
+  km.et = false;
+  km.pen = false;
+  if (previousWinner) {
+    await clearKoResultDownstream(matchId, previousWinner);
+  }
+  computePoints();
+  await saveState();
+  toast(`${matchId} result cleared`);
+  renderAdmin();
+  renderLeaderboard();
 }
 async function saveKoResult(matchId) {
   const km = S.koMatches[matchId];
